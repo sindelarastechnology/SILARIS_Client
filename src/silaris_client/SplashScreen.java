@@ -1,0 +1,217 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package silaris_client;
+
+/**
+ *
+ * @author HP
+ */
+import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
+import org.json.JSONObject;
+import silaris_client.session.SessionSQLite;
+import silaris_client.service.LoginService;
+import silaris_client.Main;
+import silaris_client.panel.PanelLogin;
+
+public class SplashScreen extends javax.swing.JFrame {
+
+    /**
+     * Creates new form SplashScreen
+     */
+    public SplashScreen() {
+
+        setSize(500,260);
+        setLocationRelativeTo(null);
+        setUndecorated(true);
+        setLayout(new BorderLayout());
+
+        // PANEL UTAMA MODERN
+        JPanel bg = new JPanel(){
+            protected void paintComponent(Graphics g){
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // gradient background
+                GradientPaint gp = new GradientPaint(
+                        0,0,new Color(102,255,255),
+                        0,getHeight(),new Color(102,255,255));
+                g2.setPaint(gp);
+                g2.fillRoundRect(0,0,getWidth(),getHeight(),0,35);
+            }
+        };
+        bg.setLayout(new BorderLayout());
+        bg.setBorder(BorderFactory.createEmptyBorder(25,25,25,25));
+
+       // LOGO
+        ImageIcon icon = new ImageIcon(
+                getClass().getResource("/silaris_client_assets/logo.png")
+        );
+
+        // ukuran maksimal logo (kecil tapi jelas)
+        int maxWidth  = 250;
+        int maxHeight = 250;
+
+        // ukuran asli gambar
+        int imgWidth  = icon.getIconWidth();
+        int imgHeight = icon.getIconHeight();
+
+        // hitung rasio biar tidak gepeng
+        double ratio = Math.min((double)maxWidth/imgWidth,
+                                (double)maxHeight/imgHeight);
+
+        int newW = (int)(imgWidth * ratio);
+        int newH = (int)(imgHeight * ratio);
+
+        // resize halus & full
+        Image scaled = icon.getImage().getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+
+        JLabel title = new JLabel(new ImageIcon(scaled));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel sub = new JLabel("Sistem Linen Rumah Sakit",SwingConstants.CENTER);
+        sub.setForeground(new Color(0,0,0));
+        sub.setFont(new Font("Segoe UI",Font.PLAIN,14));
+
+        JLabel loading = new JLabel("Memuat sistem...",SwingConstants.CENTER);
+        loading.setForeground(Color.BLACK);
+        loading.setFont(new Font("Segoe UI",Font.PLAIN,13));
+
+        // progress modern
+        JProgressBar bar = new JProgressBar();
+        bar.setIndeterminate(true);
+        bar.setBorderPainted(false);
+        bar.setForeground(Color.BLACK);
+        bar.setBackground(new Color(255,255,255,80));
+        bar.setPreferredSize(new Dimension(400,8));
+
+        // panel tengah
+        JPanel tengah = new JPanel(new GridLayout(3,1,0,6));
+        tengah.setOpaque(false);
+        tengah.add(title);
+        tengah.add(sub);
+        tengah.add(loading);
+
+        bg.add(tengah,BorderLayout.CENTER);
+        bg.add(bar,BorderLayout.SOUTH);
+
+        add(bg);
+
+        // thread cek session
+        new Thread(() -> cekSession()).start();
+    }
+
+     private void cekSession(){
+        try{
+            Thread.sleep(2000); // animasi splash
+
+            JSONObject session = SessionSQLite.get();
+
+            if(session == null){
+                // belum login
+                new PanelLogin().setVisible(true);
+                this.dispose();
+                return;
+            }
+
+            // validasi ke supabase
+            String email = session.getString("email");
+            String password = session.getString("password");
+
+            JSONObject server = LoginService.login(email,password);
+
+            if(server == null){
+                // akun tidak ada
+                SessionSQLite.clear();
+                new PanelLogin().setVisible(true);
+                this.dispose();
+                return;
+            }
+
+            // cek id_rs sama?
+            if(server.getString("rs_id")
+                    .equals(session.getString("id_rs"))){
+
+                // session valid → dashboard
+                new Main().setVisible(true);
+                this.dispose();
+
+            }else{
+                SessionSQLite.clear();
+                new PanelLogin().setVisible(true);
+                this.dispose();
+            }
+
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(SplashScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new SplashScreen().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // End of variables declaration//GEN-END:variables
+}

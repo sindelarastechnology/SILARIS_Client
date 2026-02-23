@@ -33,8 +33,6 @@ public class PanelValidasiData extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -69,16 +67,6 @@ public class PanelValidasiData extends javax.swing.JPanel {
 
         jPanel5.setBackground(new java.awt.Color(255, 153, 51));
         jPanel5.setLayout(new java.awt.GridBagLayout());
-
-        jButton3.setBackground(new java.awt.Color(153, 255, 153));
-        jButton3.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jButton3.setText("Start Scan");
-        jPanel5.add(jButton3, new java.awt.GridBagConstraints());
-
-        jButton4.setBackground(new java.awt.Color(255, 102, 102));
-        jButton4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jButton4.setText("Stop Scan");
-        jPanel5.add(jButton4, new java.awt.GridBagConstraints());
 
         jPanel6.setBackground(new java.awt.Color(153, 153, 255));
 
@@ -170,8 +158,6 @@ public class PanelValidasiData extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

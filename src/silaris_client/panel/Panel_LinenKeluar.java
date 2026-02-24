@@ -92,7 +92,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         tabel1.setRowCount(0);
         tabel2.setRowCount(0);
     }
-     
+    
      private void setTanggalOtomatis() {
         DateTimeFormatter format =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -103,7 +103,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
      
     private void resetForm() {
         txtPetugas.setText("");
-        cbRuangan.setSelectedIndex(-1);
+//        cbRuangan.setSelectedIndex(-1);
         setTanggalOtomatis();
     }
     

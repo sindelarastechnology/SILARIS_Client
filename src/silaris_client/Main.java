@@ -36,6 +36,7 @@ import silaris_client.menu.MenuLaundry;
 import silaris_client.panel.PanelLogin;
 import silaris_client.menu.MenuMasterData;
 import silaris_client.menu.MenuSetting;
+import silaris_client.panel.PanelLogLinen;
 import silaris_client.panel.PanelSinkronasiData;
 import silaris_client.panel.Panel_LinenKeluar;
 import silaris_client.panel.Panel_LinenMasuk;
@@ -58,7 +59,7 @@ public class Main extends javax.swing.JFrame {
     
     private Panel_LinenMasuk panelMasuk;
     private Panel_LinenKeluar panelKeluar;
-    
+    private PanelLogLinen panelLog;
     private PanelSinkronasiData panelSinkronasiData;
     
     private boolean adjustingPort = false;
@@ -69,6 +70,7 @@ public class Main extends javax.swing.JFrame {
         
         panelMasuk = new Panel_LinenMasuk(this);
         panelKeluar = new Panel_LinenKeluar(this);
+        panelLog = new PanelLogLinen(this);
         panelSinkronasiData = new PanelSinkronasiData(this);
         
         loadPorts();
@@ -79,7 +81,7 @@ public class Main extends javax.swing.JFrame {
         
         dashboard = new MenuDashboard();
         masterdatamenu = new MenuMasterData();
-        laundrymenu = new MenuLaundry(panelMasuk, panelKeluar);
+        laundrymenu = new MenuLaundry(panelMasuk, panelKeluar, panelLog);
         settingmenu = new MenuSetting(panelSinkronasiData);
         
         tabbedPaneUtama.setFont(new Font("Times New Roman", Font.PLAIN, 14));

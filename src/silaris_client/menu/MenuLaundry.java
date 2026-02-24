@@ -8,6 +8,7 @@ package silaris_client.menu;
 import java.awt.Font;
 import silaris_client.Main;
 import silaris_client.ReaderConfig.ReaderManager;
+import silaris_client.panel.PanelLogLinen;
 import silaris_client.panel.PanelReaderTest;
 import silaris_client.panel.Panel_LinenKeluar;
 import silaris_client.panel.Panel_LinenMasuk;
@@ -20,7 +21,8 @@ public class MenuLaundry extends javax.swing.JPanel {
 
 //    private Main main;
     public MenuLaundry(Panel_LinenMasuk panelMasuk,
-                       Panel_LinenKeluar panelKeluar) {
+                       Panel_LinenKeluar panelKeluar,
+                       PanelLogLinen panelLog) {
 //        this.main=main;
         initComponents();
         
@@ -29,6 +31,7 @@ public class MenuLaundry extends javax.swing.JPanel {
         tabbedMenuLaundry.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tabbedMenuLaundry.addTab("Linen Masuk ", panelMasuk);
         tabbedMenuLaundry.addTab("Linen Keluar ", panelKeluar);
+        tabbedMenuLaundry.addTab("History Linen ", panelLog);
     }
 
     /**

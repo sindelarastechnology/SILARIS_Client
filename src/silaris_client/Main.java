@@ -234,6 +234,10 @@ public class Main extends javax.swing.JFrame {
         revalidate();
         repaint();
     }
+
+    public Object getPanelLog() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
     public enum ReaderType {
         MASUK,
@@ -374,7 +378,11 @@ public class Main extends javax.swing.JFrame {
         updateScanUI(ReaderType.MASUK, false);
     }
     
-    
+    public void refreshLogLinen() {
+        if (panelLog != null) {
+            panelLog.loadData();
+        }
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

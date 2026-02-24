@@ -4,8 +4,11 @@
  */
 package silaris_client.panel;
 
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import silaris_client.Main;
+import silaris_client.dao.LogLinenDAO;
+import silaris_client.model.LogLinen;
 public class PanelLogLinen extends javax.swing.JPanel {
 
     private Main main;
@@ -19,7 +22,30 @@ public class PanelLogLinen extends javax.swing.JPanel {
         tabel2 = new DefaultTableModel(new Object[]{"ID Linen","EPC","ID Log","Nama Linen","Kategori","Total Cuci","Keterangan","Status"},0);
         tblLogLinen.setModel(tabel1);
         tblDetailLog.setModel(tabel2);
+        
+         loadData();
     }
+
+    public void loadData() {
+
+        LogLinenDAO dao = new LogLinenDAO();
+        List<LogLinen> list = dao.getAll();
+
+        DefaultTableModel model =
+            (DefaultTableModel) tblLogLinen.getModel();
+
+        model.setRowCount(0);
+
+        for (LogLinen log : list) {
+            model.addRow(new Object[]{
+                log.getIdLog(),
+                log.getTanggal(),
+                log.getPetugas(),
+                log.getRuangan()
+            });
+        }
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.

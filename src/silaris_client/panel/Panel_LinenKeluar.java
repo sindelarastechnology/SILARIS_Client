@@ -15,6 +15,13 @@ import javax.swing.table.DefaultTableModel;
 import silaris_client.Main;
 import silaris_client.config.SQLiteConfig;
 import silaris_client.model.Ruangan;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
+import silaris_client.dao.LogLinenDAO;
+import silaris_client.model.LogLinen;
+
 
 // Buat form, selain ruangan, nama petugas, tanggal, >> simpan di db linen keluar sqlite
 // buat panel history linen keluar, 
@@ -26,6 +33,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
     public Panel_LinenKeluar(Main main) {
         this.main=main;
         initComponents();
+        setTanggalOtomatis();
         
         tabel1 = new DefaultTableModel(new Object[]{"No","EPC"},0);
         tabel2 = new DefaultTableModel(new Object[]{"No","EPC","Kategori","Nama Linen"},0);
@@ -84,6 +92,67 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         tabel1.setRowCount(0);
         tabel2.setRowCount(0);
     }
+     
+     private void setTanggalOtomatis() {
+        DateTimeFormatter format =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        txtTanggal.setText(LocalDateTime.now().format(format));
+        txtTanggal.setEditable(false);
+    }
+     
+    private void resetForm() {
+        txtPetugas.setText("");
+        cbRuangan.setSelectedIndex(-1);
+        setTanggalOtomatis();
+    }
+    
+     private String generateId() {
+        return UUID.randomUUID().toString(); 
+    }
+    
+    private void proses() {
+        Ruangan ruangan = (Ruangan) cbRuangan.getSelectedItem();
+        String petugas = txtPetugas.getText().trim();
+        String tanggal = txtTanggal.getText();
+
+        // ================= VALIDASI =================
+        if (ruangan == null) {
+            JOptionPane.showMessageDialog(this, "Silakan pilih ruangan!");
+            return;
+        }
+
+        if (petugas.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Petugas tidak boleh kosong!");
+            return;
+        }
+
+        try {
+            // ================= SIMPAN KE DATABASE =================
+            String id = generateId();
+
+            LogLinen log = new LogLinen();
+            log.setIdLog(id);
+            log.setTanggal(tanggal);
+            log.setPetugas(petugas);
+            log.setRuangan(ruangan.getNama()); 
+            // atau ruangan.getKodeRuangan()
+
+            LogLinenDAO dao = new LogLinenDAO();
+            dao.insert(log);
+
+            JOptionPane.showMessageDialog(this, "Pengambilan linen berhasil disimpan!");
+
+            if (main != null) {
+                main.refreshLogLinen();
+            }
+            resetForm();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data!");
+        }
+     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -111,9 +180,11 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         cbRuangan = new javax.swing.JComboBox<>();
         jLabel6 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtPetugas = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtTanggal = new javax.swing.JTextField();
+        jPanel9 = new javax.swing.JPanel();
+        btnProses = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -191,6 +262,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jLabel8.setText("Form Pengambilan Linen");
         jPanel15.add(jLabel8, new java.awt.GridBagConstraints());
 
+        jPanel14.setBackground(new java.awt.Color(255, 255, 204));
         jPanel14.setLayout(new java.awt.GridLayout(3, 2));
 
         jLabel4.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
@@ -202,12 +274,25 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jLabel6.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         jLabel6.setText("Petugas:");
         jPanel14.add(jLabel6);
-        jPanel14.add(jTextField1);
+        jPanel14.add(txtPetugas);
 
         jLabel7.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         jLabel7.setText("Tanggal:");
         jPanel14.add(jLabel7);
-        jPanel14.add(jTextField2);
+        jPanel14.add(txtTanggal);
+
+        jPanel9.setBackground(new java.awt.Color(255, 255, 204));
+        jPanel9.setLayout(new java.awt.GridBagLayout());
+
+        btnProses.setBackground(new java.awt.Color(51, 255, 255));
+        btnProses.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+        btnProses.setText("Proses");
+        btnProses.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProsesActionPerformed(evt);
+            }
+        });
+        jPanel9.add(btnProses, new java.awt.GridBagConstraints());
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -216,6 +301,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
             .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
             .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,7 +312,9 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
                 .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addGap(0, 0, 0)
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(194, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel2);
@@ -345,8 +433,13 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         btnReset.setEnabled(false);
     }//GEN-LAST:event_btnResetActionPerformed
 
+    private void btnProsesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProsesActionPerformed
+        proses();
+    }//GEN-LAST:event_btnProsesActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnProses;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStop;
@@ -373,11 +466,12 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTable tblCekLinen;
     private javax.swing.JTable tblLinenTerdaftar;
+    private javax.swing.JTextField txtPetugas;
+    private javax.swing.JTextField txtTanggal;
     // End of variables declaration//GEN-END:variables
 }

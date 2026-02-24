@@ -4,14 +4,21 @@
  */
 package silaris_client.panel;
 
+import javax.swing.table.DefaultTableModel;
 import silaris_client.Main;
 public class PanelLogLinen extends javax.swing.JPanel {
 
     private Main main;
+    DefaultTableModel tabel1, tabel2;
 
     public PanelLogLinen(Main main) {
         this.main = main;
         initComponents();
+        
+        tabel1 = new DefaultTableModel(new Object[]{"ID Log","Tanggal","Petugas","Ruangan","Total Linen","Kategori"},0);
+        tabel2 = new DefaultTableModel(new Object[]{"ID Linen","EPC","ID Log","Nama Linen","Kategori","Total Cuci","Keterangan","Status"},0);
+        tblLogLinen.setModel(tabel1);
+        tblDetailLog.setModel(tabel2);
     }
 
     /**
@@ -29,13 +36,13 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblLogLinen = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tblDetailLog = new javax.swing.JTable();
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 2));
 
@@ -48,7 +55,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
 
         jPanel6.setLayout(new java.awt.BorderLayout());
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblLogLinen.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -59,7 +66,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblLogLinen);
 
         jPanel6.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
@@ -89,7 +96,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
 
         jPanel7.setLayout(new java.awt.BorderLayout());
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tblDetailLog.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -100,7 +107,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(tblDetailLog);
 
         jPanel7.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
@@ -146,7 +153,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JTable tblDetailLog;
+    private javax.swing.JTable tblLogLinen;
     // End of variables declaration//GEN-END:variables
 }

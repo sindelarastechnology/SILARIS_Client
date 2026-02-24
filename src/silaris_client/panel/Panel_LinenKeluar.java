@@ -16,10 +16,8 @@ import silaris_client.Main;
 import silaris_client.config.SQLiteConfig;
 import silaris_client.model.Ruangan;
 
-/**
- *
- * @author ASUS
- */
+// Buat form, selain ruangan, nama petugas, tanggal, >> simpan di db linen keluar sqlite
+// buat panel history linen keluar, 
 public class Panel_LinenKeluar extends javax.swing.JPanel {
 
     public static Panel_LinenKeluar instance;

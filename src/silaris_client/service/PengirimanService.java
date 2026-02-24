@@ -13,11 +13,13 @@ public class PengirimanService {
 
             String idRs   = SessionSQLite.getIdRs();
             String kodeRs = SessionSQLite.getKodeRs();
+            String status = "DIKIRIM";
 
             String url = configSupabase.SUPABASE_URL +
             "pengiriman?kode_verifikasi=eq."+kodeVerifikasi+
             "&rs_id=eq."+idRs+
             "&kode_rs=eq."+kodeRs+
+            "&status=eq."+status+
             "&select=pengiriman_id,rs_id,kode_rs,linen_dikirim(*)";
 
             Request request = new Request.Builder()

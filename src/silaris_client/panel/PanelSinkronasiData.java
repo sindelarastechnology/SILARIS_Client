@@ -50,7 +50,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
                 Component c = super.getTableCellRendererComponent(
                         table, value, isSelected, hasFocus, row, column);
 
-                String epc = table.getValueAt(row, 1).toString();
+                String epc = table.getValueAt(row, 2).toString();
 
                 if(validatedTags.contains(epc)){
                     c.setBackground(new Color(144,238,144)); // hijau muda
@@ -62,7 +62,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
             }
         });
         modelC = new DefaultTableModel(new Object[]{"No","EPC","Ada/Tidak"},0);
-        tabel1 = new DefaultTableModel(new Object[]{"No","EPC","Kategori","Nama Linen"},0);
+        tabel1 = new DefaultTableModel(new Object[]{"No","ID","EPC","Kategori","Nama Linen"},0);
         modelTidakTerdaftar = new DefaultTableModel(new Object[]{"No","EPC"},0);
         tblCek.setModel(modelC);
         tblLinen.setModel(tabel1);
@@ -122,6 +122,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
 
                 tabel1.addRow(new Object[]{
                     no++,
+                    l.getString("id"),
                     epc,
                     l.getString("kategori"),
                     l.getString("nama_linen"),

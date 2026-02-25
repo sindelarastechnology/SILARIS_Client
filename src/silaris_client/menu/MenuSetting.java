@@ -9,7 +9,7 @@ import java.awt.Font;
 import silaris_client.Main;
 import silaris_client.panel.PanelSyncData;
 import silaris_client.panel.PanelSinkronasiData;
-import silaris_client.panel.PanelValidasiData;
+import silaris_client.panel.PanelLogPenerimaan;
 
 /**
  *
@@ -24,7 +24,7 @@ public class MenuSetting extends javax.swing.JPanel {
         // set font tab menjadi Times New Roman
         tabbedMenuSetting.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tabbedMenuSetting.addTab("Sync Data ", panelSinkronasiData);
-        tabbedMenuSetting.addTab("Log Pengiriman Data ", new PanelValidasiData());
+        tabbedMenuSetting.addTab("Log Pengiriman Data ", new PanelLogPenerimaan());
     }
 
     /**

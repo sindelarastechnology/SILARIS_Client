@@ -110,6 +110,8 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
 
             org.json.JSONObject obj = arr.getJSONObject(0);
             org.json.JSONArray linen = obj.getJSONArray("linen_dikirim");
+            String idPengiriman = obj.getString("pengiriman_id");
+            Integer jumlahLinen = obj.getInt("total_linen");
 
             int no = 1;
 
@@ -129,6 +131,8 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
                 });
 
                 mapRow.put(epc, tabel1.getRowCount() - 1);
+                idPeng.setText(" ID Pengiriman : "+ idPengiriman);
+                jumLinen.setText(" Jumlah Linen   : "+ jumlahLinen);
             }
 
             tblLinen.repaint();
@@ -258,6 +262,9 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel17 = new javax.swing.JPanel();
         jPanel18 = new javax.swing.JPanel();
         btnGetData = new javax.swing.JButton();
+        jPanel22 = new javax.swing.JPanel();
+        idPeng = new javax.swing.JLabel();
+        jumLinen = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -389,7 +396,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel21Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtkode, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)
+                .addComponent(txtkode, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel21Layout.setVerticalGroup(
@@ -423,6 +430,15 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
 
         jPanel14.add(jPanel17);
 
+        jPanel22.setOpaque(false);
+        jPanel22.setLayout(new java.awt.GridLayout(2, 1));
+
+        idPeng.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jPanel22.add(idPeng);
+
+        jumLinen.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jPanel22.add(jumLinen);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -431,6 +447,10 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
             .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(jPanel14, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel22, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -442,7 +462,9 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 21, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 116, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel2);
@@ -478,15 +500,15 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
-            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3);
@@ -522,7 +544,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
             .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -597,6 +619,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JButton btnSimpan;
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStop;
+    private javax.swing.JLabel idPeng;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -617,6 +640,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
+    private javax.swing.JPanel jPanel22;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -627,6 +651,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel jumLinen;
     private javax.swing.JTable tblCek;
     private javax.swing.JTable tblLinen;
     private javax.swing.JTable tblTidakTerdaftar;

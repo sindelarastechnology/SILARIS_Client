@@ -118,4 +118,17 @@ public class ReaderManager {
             listener.onTag(epc, rssi);
         });
     }
+    public void startKeluarRealtime(String portName,
+        RFIDReaderService.TagListener listener) {
+
+        stopMasuk();
+
+        readerKeluar = new RFIDReaderService();
+
+        readerKeluar.startWithRSSI(portName, (epc, rssi) -> {
+
+            // JANGAN pakai epcMasuk.contains lagi
+            listener.onTag(epc, rssi);
+        });
+    }
 }

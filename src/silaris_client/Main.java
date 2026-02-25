@@ -316,8 +316,8 @@ public class Main extends javax.swing.JFrame {
         String port = (String) cbPortKeluar.getSelectedItem();
         if (port == null) return;
         updateScanUI(ReaderType.MASUK, true);
-        manager.startMasuk(port, epc -> {
-            panelMasuk.addEPC(epc);
+        manager.startMasukRealtime(port, (epc, rssi) -> {
+            panelMasuk.onTagDetected(epc, rssi);
         });
     }
 
@@ -344,8 +344,8 @@ public class Main extends javax.swing.JFrame {
         
         
 
-        manager.startKeluar(port, epc -> {
-            panelKeluar.addEPC(epc);
+        manager.startKeluarRealtime(port, (epc, rssi) -> {
+            panelKeluar.onTagDetected(epc, rssi);
         });
     }
 

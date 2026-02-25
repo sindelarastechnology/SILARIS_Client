@@ -17,28 +17,35 @@ import silaris_client.config.SQLiteConfig;
 import silaris_client.model.Ruangan;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
+import javax.swing.Timer;
 import java.util.UUID;
 import silaris_client.dao.LogLinenDAO;
 import silaris_client.model.LogLinen;
+import java.sql.PreparedStatement;
 
-
-// Buat form, selain ruangan, nama petugas, tanggal, >> simpan di db linen keluar sqlite
-// buat panel history linen keluar, 
 public class Panel_LinenKeluar extends javax.swing.JPanel {
 
     public static Panel_LinenKeluar instance;
     DefaultTableModel tabel1, tabel2;
+    // Untuk real-time (kiri)
+    private final Map<String, Long> bufferTags = new HashMap<>();
+    private final Map<String, Long> activeTags = new HashMap<>();
+    private final Set<String> detectedHistory = new HashSet<>();
+    private static final long TIMEOUT = 800;
+    private Timer refreshTimer;
     private Main main;
     public Panel_LinenKeluar(Main main) {
         this.main=main;
         initComponents();
         setTanggalOtomatis();
-        
+        refreshTimer = new Timer(300, e -> applyBufferedTags());
+        refreshTimer.setRepeats(true);
+        refreshTimer.start();
         tabel1 = new DefaultTableModel(new Object[]{"No","EPC"},0);
-        tabel2 = new DefaultTableModel(new Object[]{"No","EPC","Kategori","Nama Linen"},0);
+        tabel2 = new DefaultTableModel(new Object[]{"No","ID","EPC","Kategori","Nama Linen", "Jumlah Cuci", "Lokasi", "Status", "Keterangan"},0);
         tblCekLinen.setModel(tabel1);
-        tblLinenTerdaftar.setModel(tabel2);
+        tblLinenKeluar.setModel(tabel2);
         
         instance = this;  
         btnStop.setEnabled(false);
@@ -46,15 +53,81 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         loadRuangan(); 
     }
     
-    public void addEPC(String epc) {
-        SwingUtilities.invokeLater(() -> {
-            tabel1.addRow(new Object[]{
-                    tabel1.getRowCount() + 1,
-                    epc
-            });
-        });
+    public void onTagDetected(String epc, int rssi){
+
+        long now = System.currentTimeMillis();
+
+        if(rssi > -70){ // filter jarak
+            bufferTags.put(epc, now);
+
+            // history hanya sekali
+            if(!detectedHistory.contains(epc)){
+                detectedHistory.add(epc);
+                loadLinenFromDatabase(epc);
+            }
+        }
     }
     
+    private void applyBufferedTags(){
+
+        long now = System.currentTimeMillis();
+
+        // copy buffer ke active
+        for(Map.Entry<String, Long> entry : bufferTags.entrySet()){
+            activeTags.put(entry.getKey(), entry.getValue());
+        }
+
+        // hapus yang timeout
+        activeTags.entrySet().removeIf(entry ->
+                now - entry.getValue() > TIMEOUT
+        );
+
+        refreshCekTable();
+    }
+    private void refreshCekTable(){
+
+        tabel1.setRowCount(0);
+
+        int no = 1;
+
+        for(String epc : activeTags.keySet()){
+            tabel1.addRow(new Object[]{
+                    no++,
+                    epc
+            });
+        }
+    }
+    private void loadLinenFromDatabase(String epc) {
+
+        try {
+
+            Connection c = SQLiteConfig.connect();
+
+            String sql = "SELECT * FROM linen WHERE epc = ?";
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setString(1, epc);
+
+            ResultSet r = ps.executeQuery();
+
+            if(r.next()) {
+
+                tabel2.addRow(new Object[]{
+                        tabel2.getRowCount() + 1,
+                        r.getString("id_linen"),
+                        r.getString("epc"),
+                        r.getString("kategori"),
+                        r.getString("nama_linen"),
+                        r.getInt("jumlah_dicuci"),
+                        r.getString("lokasi"),
+                        r.getString("status"),
+                        r.getString("keterangan")
+                });
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void loadRuangan() {
         try {
             cbRuangan.removeAllItems();
@@ -91,6 +164,8 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
      public void resetTable() {
         tabel1.setRowCount(0);
         tabel2.setRowCount(0);
+        detectedHistory.clear();
+        
     }
     
      private void setTanggalOtomatis() {
@@ -163,6 +238,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
@@ -185,10 +261,8 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         txtTanggal = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
         btnProses = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCekLinen = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
@@ -196,13 +270,13 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tblLinenTerdaftar = new javax.swing.JTable();
+        tblLinenKeluar = new javax.swing.JTable();
 
-        jPanel1.setLayout(new java.awt.GridLayout(1, 3));
+        jSplitPane1.setDividerSize(2);
+        jSplitPane1.setContinuousLayout(false);
+        jSplitPane1.setLastDividerLocation(-3);
 
         jPanel2.setBackground(new java.awt.Color(102, 255, 255));
-
-        jPanel10.setLayout(new java.awt.GridLayout(3, 1));
 
         jPanel11.setBackground(new java.awt.Color(255, 153, 51));
         jPanel11.setLayout(new java.awt.GridBagLayout());
@@ -210,8 +284,6 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jLabel5.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel5.setText("Scan Linen");
         jPanel11.add(jLabel5, new java.awt.GridBagConstraints());
-
-        jPanel10.add(jPanel11);
 
         jPanel12.setBackground(new java.awt.Color(255, 255, 204));
         jPanel12.setLayout(new java.awt.GridBagLayout());
@@ -243,8 +315,6 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         });
         jPanel12.add(btnReset, new java.awt.GridBagConstraints());
 
-        jPanel10.add(jPanel12);
-
         jPanel13.setBackground(new java.awt.Color(255, 255, 204));
         jPanel13.setLayout(new java.awt.GridBagLayout());
 
@@ -253,7 +323,24 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jButton4.setText("Simpan");
         jPanel13.add(jButton4, new java.awt.GridBagConstraints());
 
-        jPanel10.add(jPanel13);
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0))
+        );
 
         jPanel15.setBackground(new java.awt.Color(255, 255, 153));
         jPanel15.setLayout(new java.awt.GridBagLayout());
@@ -294,39 +381,12 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         });
         jPanel9.add(btnProses, new java.awt.GridBagConstraints());
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
-            .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(194, Short.MAX_VALUE))
-        );
-
-        jPanel1.add(jPanel2);
-
         jPanel5.setBackground(new java.awt.Color(255, 255, 102));
         jPanel5.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel1.setText("Cek Linen");
         jPanel5.add(jLabel1, new java.awt.GridBagConstraints());
-
-        jPanel6.setLayout(new java.awt.BorderLayout());
 
         tblCekLinen.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -341,35 +401,58 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblCekLinen);
 
-        jPanel6.add(jScrollPane1, java.awt.BorderLayout.CENTER);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
-            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE))
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(327, 327, 327))
         );
 
-        jPanel1.add(jPanel3);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        jSplitPane1.setLeftComponent(jPanel1);
 
         jPanel7.setBackground(new java.awt.Color(153, 255, 102));
         jPanel7.setLayout(new java.awt.GridBagLayout());
 
         jLabel2.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        jLabel2.setText("Linen Terdaftar");
+        jLabel2.setText("Linen Keluar");
         jPanel7.add(jLabel2, new java.awt.GridBagConstraints());
 
         jPanel8.setLayout(new java.awt.BorderLayout());
 
-        tblLinenTerdaftar.setModel(new javax.swing.table.DefaultTableModel(
+        tblLinenKeluar.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -380,7 +463,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(tblLinenTerdaftar);
+        jScrollPane2.setViewportView(tblLinenKeluar);
 
         jPanel8.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
@@ -388,7 +471,7 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 874, Short.MAX_VALUE)
             .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -396,20 +479,20 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE))
+                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE))
         );
 
-        jPanel1.add(jPanel4);
+        jSplitPane1.setRightComponent(jPanel4);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -460,17 +543,16 @@ public class Panel_LinenKeluar extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTable tblCekLinen;
-    private javax.swing.JTable tblLinenTerdaftar;
+    private javax.swing.JTable tblLinenKeluar;
     private javax.swing.JTextField txtPetugas;
     private javax.swing.JTextField txtTanggal;
     // End of variables declaration//GEN-END:variables

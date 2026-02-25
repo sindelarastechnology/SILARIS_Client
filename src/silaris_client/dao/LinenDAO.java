@@ -20,11 +20,31 @@ import silaris_client.model.Penerimaan;
  */
 public class LinenDAO {
     
-    
-//    Get ALL
-    
-    
-    
+    public Linen findByEpc(String epc) throws Exception {
+
+        String sql = "SELECT * FROM linen  WHERE epc=?";
+
+        try (Connection c = SQLiteConfig.connect();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, epc);
+
+            ResultSet r = ps.executeQuery();
+            if (r.next()) {
+                Linen l = new Linen();
+                l.idLinen = r.getString("id_linen");
+                l.epc = r.getString("epc");
+                l.kategoriLin = r.getString("kategori");
+                l.namaLin = r.getString("nama_linen");
+                l.lokasiLin = r.getString("lokasi");
+                l.jumlahCuci = r.getInt("jumlah_cuci");
+                l.statusLin = r.getString("status");
+                l.ketLin = r.getString("keterangan");
+                return l;
+            }
+        }
+        return null;
+    }
     
     public List<Linen> getByIdPenerimaan(String idPen) throws Exception {
         List<Linen> list = new ArrayList<>();

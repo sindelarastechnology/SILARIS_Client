@@ -6,6 +6,8 @@ package silaris_client.panel;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import silaris_client.dao.RuanganDAO;
 import silaris_client.model.Ruangan;
 
@@ -23,21 +25,31 @@ public class PanelRuangan extends javax.swing.JPanel {
     public PanelRuangan() {
         initComponents();
          r = new DefaultTableModel(
-            new Object[]{"ID Ruangan","Kode Ruangan","Nama Ruangan", "Keterangan"},0
+            new Object[]{"No","ID Ruangan","Kode Ruangan","Nama Ruangan", "Keterangan"},0
         );
         tblRuangan.setModel(r);
          
         loadData(); 
+        setupTableColumnWidth();
+    }
+    
+    private void setupTableColumnWidth() {
+        TableColumnModel columnModel = tblRuangan.getColumnModel();
+        TableColumn colNo = columnModel.getColumn(0);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
     }
     
     void loadData() {
         r.setRowCount(0);
-
+        int no = 1;
         try {
             RuanganDAO dao = new RuanganDAO();
 
             for (Ruangan ruangan : dao.getAll()) {
                 r.addRow(new Object[]{
+                    no++,
                     ruangan.id,
                     ruangan.kodeRuangan,
                     ruangan.namaRuangan,

@@ -7,10 +7,12 @@ package silaris_client.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import silaris_client.config.SQLiteConfig;
 import silaris_client.model.Linen;
+import silaris_client.model.Penerimaan;
 
 /**
  *
@@ -40,6 +42,69 @@ public class LinenDAO {
                 n.epc = r.getString("epc");
                 n.kategoriLin = r.getString("kategori");
                 n.namaLin = r.getString("nama_linen");
+                list.add(n);
+            }
+        }
+        return list;
+    }
+    
+     public List<Linen> getAll() throws Exception {
+        List<Linen> list = new ArrayList<>();
+        String sql = "SELECT * FROM linen  ORDER BY kategori ASC";
+
+        try (Connection c = SQLiteConfig.connect();
+             Statement s = c.createStatement();
+             ResultSet r = s.executeQuery(sql)) {
+
+             while (r.next()) {
+                Linen n = new Linen();
+//                n.idLinen = r.getString("id_linen");
+                n.epc = r.getString("epc");
+                n.kategoriLin = r.getString("kategori");
+                n.namaLin = r.getString("nama_linen");
+                n.lokasiLin = r.getString("lokasi");
+                list.add(n);
+            }
+        }
+        return list;
+    }
+    
+    public List<Linen> getAllDicuci() throws Exception {
+        List<Linen> list = new ArrayList<>();
+        String sql = "SELECT * FROM linen WHERE status = 'DICUCI' ORDER BY kategori ASC";
+
+        try (Connection c = SQLiteConfig.connect();
+             Statement s = c.createStatement();
+             ResultSet r = s.executeQuery(sql)) {
+
+            while (r.next()) {
+                Linen n = new Linen();
+//                n.idLinen = r.getString("id_linen");
+                n.epc = r.getString("epc");
+                n.kategoriLin = r.getString("kategori");
+                n.namaLin = r.getString("nama_linen");
+                n.lokasiLin = r.getString("lokasi");
+                list.add(n);
+            }
+        }
+        return list;
+    }
+    
+        public List<Linen> getAllDipakai() throws Exception {
+        List<Linen> list = new ArrayList<>();
+        String sql = "SELECT * FROM linen WHERE status = 'DIPAKAI' ORDER BY kategori ASC";
+
+        try (Connection c = SQLiteConfig.connect();
+             Statement s = c.createStatement();
+             ResultSet r = s.executeQuery(sql)) {
+
+            while (r.next()) {
+                Linen n = new Linen();
+//                n.idLinen = r.getString("id_linen");
+                n.epc = r.getString("epc");
+                n.kategoriLin = r.getString("kategori");
+                n.namaLin = r.getString("nama_linen");
+                n.lokasiLin = r.getString("lokasi");
                 list.add(n);
             }
         }

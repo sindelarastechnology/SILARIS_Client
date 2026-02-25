@@ -8,19 +8,19 @@ package silaris_client.panel;
 import java.awt.*;
 import java.util.*;
 import javax.swing.Timer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-
-import silaris_client.config.Rmt01ReaderService;
+import java.sql.Connection;
 import silaris_client.Main;
+import silaris_client.config.SQLiteConfig;
+import silaris_client.service.PengirimanService;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class PanelSinkronasiData extends javax.swing.JPanel{
     private Main main;
@@ -70,6 +70,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
 
         btnReset.setEnabled(false);
         btnStop.setEnabled(false);
+        btnSimpan.setEnabled(false);
         
         setupTableColumnWidth();
     }
@@ -205,6 +206,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         }
 
         tblLinen.repaint();
+        checkFinalValidation();
     }
     
     public void startScan(){
@@ -229,6 +231,114 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         modelTidakTerdaftar.setRowCount(0);
         validatedTags.clear();
         tblLinen.repaint();
+    }
+    
+    private void simpanSemuaData(){
+
+        if(!btnSimpan.isEnabled()){
+            JOptionPane.showMessageDialog(this,"Validasi belum lengkap!");
+            return;
+        }
+
+        try{
+
+            String pengirimanId = idPeng.getText().replace(" ID Pengiriman : ","");
+            String petugas = txtPetugas.getText();
+
+            // 1️⃣ Update Supabase dulu
+            boolean suksesSupabase =
+                    PengirimanService.updateStatusPengiriman(pengirimanId);
+
+            if(!suksesSupabase){
+                JOptionPane.showMessageDialog(this,
+                        "Gagal update status ke server!");
+                return;
+            }
+
+            // 2️⃣ Simpan ke SQLite
+            Connection conn = SQLiteConfig.connect();
+            conn.setAutoCommit(false);
+
+            String idPenerimaan = UUID.randomUUID().toString();
+            
+            LocalDateTime now = LocalDateTime.now();
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            String tanggal = now.format(formatter);
+            
+            // INSERT PENERIMAAN
+            String sqlPenerimaan =
+                    "INSERT INTO penerimaan "
+                    + "(id_penerimaan, tanggal, jumlah_linen, petugas, keterangan) "
+                    + "VALUES (?,?,?,?,?)";
+
+            PreparedStatement psTerima = conn.prepareStatement(sqlPenerimaan);
+
+            psTerima.setString(1, idPenerimaan);
+            psTerima.setString(2, tanggal);
+            psTerima.setInt(3, tabel1.getRowCount());
+            psTerima.setString(4, petugas);
+            psTerima.setString(5, "Penerimaan dari Pengiriman");
+
+            psTerima.executeUpdate();
+
+            // INSERT LINEN
+            String sqlLinen =
+                    "INSERT INTO linen "
+                    + "(id_linen, id_penerimaan, epc, kategori, "
+                    + "nama_linen, jumlah_dicuci, lokasi, keterangan, status) "
+                    + "VALUES (?,?,?,?,?,?,?,?,?)";
+
+            PreparedStatement psLinen =
+                    conn.prepareStatement(sqlLinen);
+
+            for(int i=0; i<tabel1.getRowCount(); i++){
+
+                String idLinen = tabel1.getValueAt(i,1).toString();
+                String epc = tabel1.getValueAt(i,2).toString();
+                String kategori = tabel1.getValueAt(i,3).toString();
+                String nama = tabel1.getValueAt(i,4).toString();
+
+                psLinen.setString(1, idLinen);
+                psLinen.setString(2, idPenerimaan);
+                psLinen.setString(3, epc);
+                psLinen.setString(4, kategori);
+                psLinen.setString(5, nama);
+                psLinen.setInt(6, 0);
+                psLinen.setString(7, "Gudang RS");
+                psLinen.setString(8, "Penerimaan Linen Baru");
+                psLinen.setString(9, "DITERIMA");
+
+                psLinen.addBatch();
+            }
+
+            psLinen.executeBatch();
+
+            conn.commit();
+
+            JOptionPane.showMessageDialog(this,
+                    "Penerimaan berhasil disimpan!");
+
+            refreshAll();
+            tabel1.setRowCount(0);
+
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this,
+                    "Error simpan: "+e.getMessage());
+        }
+    }
+    
+    private void checkFinalValidation(){
+
+        boolean semuaHijau =
+                validatedTags.size() == databaseTags.size();
+
+        boolean tidakAdaAsing =
+                modelTidakTerdaftar.getRowCount() == 0;
+
+        btnSimpan.setEnabled(semuaHijau && tidakAdaAsing);
     }
 
     @SuppressWarnings("unchecked")
@@ -257,10 +367,11 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel16 = new javax.swing.JPanel();
         jPanel20 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        jPanel21 = new javax.swing.JPanel();
         txtkode = new javax.swing.JTextField();
+        jPanel23 = new javax.swing.JPanel();
+        jLabel7 = new javax.swing.JLabel();
+        txtPetugas = new javax.swing.JTextField();
         jPanel17 = new javax.swing.JPanel();
-        jPanel18 = new javax.swing.JPanel();
         btnGetData = new javax.swing.JButton();
         jPanel22 = new javax.swing.JPanel();
         idPeng = new javax.swing.JLabel();
@@ -359,12 +470,16 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         btnSimpan.setBackground(new java.awt.Color(51, 255, 255));
         btnSimpan.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         btnSimpan.setText("Simpan Data");
+        btnSimpan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSimpanActionPerformed(evt);
+            }
+        });
         jPanel19.add(btnSimpan, new java.awt.GridBagConstraints());
 
         jPanel11.add(jPanel19);
 
         jPanel14.setBackground(new java.awt.Color(102, 255, 255));
-        jPanel14.setLayout(new java.awt.GridLayout(3, 1));
 
         jPanel15.setBackground(new java.awt.Color(255, 255, 102));
         jPanel15.setLayout(new java.awt.GridBagLayout());
@@ -373,48 +488,33 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jLabel5.setText("Verifikasi Linen");
         jPanel15.add(jLabel5, new java.awt.GridBagConstraints());
 
-        jPanel14.add(jPanel15);
-
-        jPanel16.setLayout(new java.awt.GridLayout(1, 2));
+        jPanel16.setOpaque(false);
+        jPanel16.setLayout(new java.awt.GridLayout(2, 2, 0, 5));
 
         jPanel20.setBackground(new java.awt.Color(102, 255, 255));
         jPanel20.setLayout(new java.awt.GridBagLayout());
 
         jLabel6.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
-        jLabel6.setText("Kode Verifikasi:");
+        jLabel6.setText("Kode Verifikasi :");
         jPanel20.add(jLabel6, new java.awt.GridBagConstraints());
 
         jPanel16.add(jPanel20);
 
-        jPanel21.setBackground(new java.awt.Color(102, 255, 255));
-
         txtkode.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jPanel16.add(txtkode);
 
-        javax.swing.GroupLayout jPanel21Layout = new javax.swing.GroupLayout(jPanel21);
-        jPanel21.setLayout(jPanel21Layout);
-        jPanel21Layout.setHorizontalGroup(
-            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel21Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(txtkode, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        jPanel21Layout.setVerticalGroup(
-            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel21Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txtkode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+        jPanel23.setOpaque(false);
+        jPanel23.setLayout(new java.awt.GridBagLayout());
 
-        jPanel16.add(jPanel21);
+        jLabel7.setText("Nama Petugas :");
+        jPanel23.add(jLabel7, new java.awt.GridBagConstraints());
 
-        jPanel14.add(jPanel16);
+        jPanel16.add(jPanel23);
 
-        jPanel17.setLayout(new java.awt.GridLayout(1, 2));
+        txtPetugas.setToolTipText("Nama Petugas");
+        jPanel16.add(txtPetugas);
 
-        jPanel18.setBackground(new java.awt.Color(102, 255, 255));
-        jPanel18.setLayout(new java.awt.GridBagLayout());
+        jPanel17.setLayout(new java.awt.BorderLayout());
 
         btnGetData.setBackground(new java.awt.Color(153, 255, 153));
         btnGetData.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
@@ -424,11 +524,29 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
                 btnGetDataActionPerformed(evt);
             }
         });
-        jPanel18.add(btnGetData, new java.awt.GridBagConstraints());
+        jPanel17.add(btnGetData, java.awt.BorderLayout.CENTER);
 
-        jPanel17.add(jPanel18);
-
-        jPanel14.add(jPanel17);
+        javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
+        jPanel14.setLayout(jPanel14Layout);
+        jPanel14Layout.setHorizontalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)
+                    .addComponent(jPanel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+            .addComponent(jPanel15, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel14Layout.setVerticalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jPanel22.setOpaque(false);
         jPanel22.setLayout(new java.awt.GridLayout(2, 1));
@@ -461,10 +579,10 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
                 .addGap(0, 0, 0)
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 116, Short.MAX_VALUE))
+                .addComponent(jPanel22, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel2);
@@ -500,8 +618,8 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -544,7 +662,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
             .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
@@ -612,6 +730,10 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
        btnReset.setEnabled(false);
     }//GEN-LAST:event_btnResetActionPerformed
 
+    private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
+        simpanSemuaData();
+    }//GEN-LAST:event_btnSimpanActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGetData;
@@ -626,6 +748,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -635,12 +758,11 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
-    private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
-    private javax.swing.JPanel jPanel21;
     private javax.swing.JPanel jPanel22;
+    private javax.swing.JPanel jPanel23;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -655,6 +777,7 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
     private javax.swing.JTable tblCek;
     private javax.swing.JTable tblLinen;
     private javax.swing.JTable tblTidakTerdaftar;
+    private javax.swing.JTextField txtPetugas;
     private javax.swing.JTextField txtkode;
     // End of variables declaration//GEN-END:variables
 }

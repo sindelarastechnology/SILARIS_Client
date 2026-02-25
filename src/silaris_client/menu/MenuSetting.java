@@ -7,7 +7,6 @@ package silaris_client.menu;
 
 import java.awt.Font;
 import silaris_client.Main;
-import silaris_client.panel.PanelSyncData;
 import silaris_client.panel.PanelSinkronasiData;
 import silaris_client.panel.PanelLogPenerimaan;
 

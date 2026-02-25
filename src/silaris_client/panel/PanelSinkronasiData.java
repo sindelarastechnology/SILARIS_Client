@@ -157,8 +157,6 @@ public class PanelSinkronasiData extends javax.swing.JPanel{
         }
     }
     
-    
-
     private void applyBufferedTags(){
 
         long now = System.currentTimeMillis();

@@ -34,22 +34,11 @@ public class PanelDataLinen extends javax.swing.JPanel {
         tblLinenCuci.setModel(modelLC);
         tblLinenPakai.setModel(modelLP);
         
-//        tblDataLinen.getColumnModel().getColumn(1).setMinWidth(0);
-//        tblDataLinen.getColumnModel().getColumn(1).setMaxWidth(0);
-//        tblDataLinen.getColumnModel().getColumn(1).setWidth(0);
-//        
-//        tblLinenCuci.getColumnModel().getColumn(1).setMinWidth(0);
-//        tblLinenCuci.getColumnModel().getColumn(1).setMaxWidth(0);
-//        tblLinenCuci.getColumnModel().getColumn(1).setWidth(0);
-//        
-//        tblLinenPakai.getColumnModel().getColumn(1).setMinWidth(0);
-//        tblLinenPakai.getColumnModel().getColumn(1).setMaxWidth(0);
-//        tblLinenPakai.getColumnModel().getColumn(1).setWidth(0);
-        
         loadDataLinen();
         loadLinenCuci();
         loadLinenPakai();
         setupTableColumnWidth();
+         
     }
     
         private void setupTableColumnWidth() {

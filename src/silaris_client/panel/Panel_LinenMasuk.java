@@ -19,6 +19,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import silaris_client.Main;
 import silaris_client.config.SQLiteConfig;
 import silaris_client.dao.LogLinenDAO;
@@ -44,7 +46,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     public Panel_LinenMasuk(Main main) {
         this.main = main;
         initComponents();
-
+        setTanggalOtomatis();
         refreshTimer = new Timer(300, e -> applyBufferedTags());
         refreshTimer.setRepeats(true);
         refreshTimer.start();
@@ -57,6 +59,21 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         btnStop.setEnabled(false);
         btnReset.setEnabled(false);
         loadRuangan(); 
+        setupTableColumnWidth();
+    }
+    
+    private void setupTableColumnWidth() {
+        TableColumnModel columnModel = tblCekLinenMasuk.getColumnModel();
+        TableColumn colNo = columnModel.getColumn(0);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
+        
+        TableColumnModel columnModel2 = tblLinenMasuk.getColumnModel();
+        TableColumn colNo2 = columnModel2.getColumn(0);
+        colNo2.setMinWidth(30);
+        colNo2.setPreferredWidth(40);
+        colNo2.setMaxWidth(50);
     }
     
     public void onTagDetected(String epc, int rssi){
@@ -173,14 +190,19 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         detectedHistory.clear();
     }
     
-     private void setTanggalOtomatis() {
+    private void setTanggalOtomatis() {
         DateTimeFormatter format =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        txtTanggal.setText(LocalDateTime.now().format(format));
-        txtTanggal.setEditable(false);
+        // Timer update setiap 1 detik (1000 ms)
+        Timer timer = new Timer(1000, e -> {
+            txtTanggalMasuk.setText(LocalDateTime.now().format(format));
+        });
+
+        timer.start();
+        txtTanggalMasuk.setEditable(false);
     }
-     
+   
     private void resetForm() {
         txtPetugas.setText("");
 //        cbRuangan.setSelectedIndex(-1);
@@ -194,7 +216,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private void proses() {
         Ruangan ruangan = (Ruangan) cbRuangan.getSelectedItem();
         String petugas = txtPetugas.getText().trim();
-        String tanggal = txtTanggal.getText();
+        String tanggal = txtTanggalMasuk.getText();
 
         // ================= VALIDASI =================
         if (ruangan == null) {
@@ -256,11 +278,12 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         jLabel6 = new javax.swing.JLabel();
         txtPetugas = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        txtTanggal = new javax.swing.JTextField();
+        txtTanggalMasuk = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
         btnProses = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCekLinenMasuk = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
@@ -364,7 +387,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         jLabel7.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         jLabel7.setText("Tanggal:");
         jPanel14.add(jLabel7);
-        jPanel14.add(txtTanggal);
+        jPanel14.add(txtTanggalMasuk);
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 204));
         jPanel9.setLayout(new java.awt.GridBagLayout());
@@ -386,6 +409,8 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         jLabel1.setText("Cek Linen");
         jPanel5.add(jLabel1, new java.awt.GridBagConstraints());
 
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
         tblCekLinenMasuk.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -399,6 +424,8 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblCekLinenMasuk);
 
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -408,7 +435,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
             .addComponent(jPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -418,14 +445,14 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
                 .addGap(0, 0, 0)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(327, 327, 327))
+                .addContainerGap(372, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -477,7 +504,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 824, Short.MAX_VALUE))
+                .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 875, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel4);
@@ -541,6 +568,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel7;
@@ -552,6 +580,6 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private javax.swing.JTable tblCekLinenMasuk;
     private javax.swing.JTable tblLinenMasuk;
     private javax.swing.JTextField txtPetugas;
-    private javax.swing.JTextField txtTanggal;
+    private javax.swing.JTextField txtTanggalMasuk;
     // End of variables declaration//GEN-END:variables
 }

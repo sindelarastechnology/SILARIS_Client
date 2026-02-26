@@ -57,15 +57,15 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
     private void setupTableColumnWidth() {
         TableColumnModel columnModel = tblPener.getColumnModel();
         TableColumn colNo = columnModel.getColumn(0);
-        colNo.setMinWidth(50);
-        colNo.setPreferredWidth(60);
-        colNo.setMaxWidth(70);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
         
         TableColumnModel columnModel2 = tblDetail.getColumnModel();
         TableColumn colNo2 = columnModel2.getColumn(0);
-        colNo2.setMinWidth(50);
-        colNo2.setPreferredWidth(60);
-        colNo2.setMaxWidth(70);
+        colNo2.setMinWidth(30);
+        colNo2.setPreferredWidth(40);
+        colNo2.setMaxWidth(50);
     }
     
     private void loadPenerimaan() {
@@ -94,19 +94,28 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblPener = new javax.swing.JTable();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblDetail = new javax.swing.JTable();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 2));
 
-        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel6.setBackground(new java.awt.Color(255, 255, 153));
+        jPanel6.setLayout(new java.awt.GridBagLayout());
+
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel3.setText("Penerimaan");
+        jPanel6.add(jLabel3, new java.awt.GridBagConstraints());
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
 
         tblPener.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -121,20 +130,33 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
         ));
         jScrollPane1.setViewportView(tblPener);
 
-        jPanel2.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 204));
-        jPanel3.setLayout(new java.awt.GridBagLayout());
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setText("Penerimaan");
-        jPanel3.add(jLabel1, new java.awt.GridBagConstraints());
-
-        jPanel2.add(jPanel3, java.awt.BorderLayout.PAGE_START);
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE))
+        );
 
         jPanel1.add(jPanel2);
 
-        jPanel4.setLayout(new java.awt.BorderLayout());
+        jPanel7.setBackground(new java.awt.Color(153, 255, 153));
+        jPanel7.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel1.setText("Detail");
+        jPanel7.add(jLabel1, new java.awt.GridBagConstraints());
+
+        jPanel5.setLayout(new java.awt.BorderLayout());
 
         tblDetail.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -149,16 +171,23 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(tblDetail);
 
-        jPanel4.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+        jPanel5.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
-        jPanel5.setBackground(new java.awt.Color(204, 255, 204));
-        jPanel5.setLayout(new java.awt.GridBagLayout());
-
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel2.setText("Detail");
-        jPanel5.add(jLabel2, new java.awt.GridBagConstraints());
-
-        jPanel4.add(jPanel5, java.awt.BorderLayout.PAGE_START);
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 568, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         jPanel1.add(jPanel4);
 
@@ -166,23 +195,25 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 787, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblDetail;

@@ -22,11 +22,11 @@ public class MenuSetting extends javax.swing.JPanel {
         this.main=main;
         initComponents();
         
-        panelSinkronasiData = new PanelSinkronasiData(main);
+        panelLogPenerimaan = new PanelLogPenerimaan(main);
         // set font tab menjadi Times New Roman
         tabbedMenuSetting.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tabbedMenuSetting.addTab("Sync Data ", panelSinkronasiData);
-        tabbedMenuSetting.addTab("Log Pengiriman Data ", panelSinkronasiData);
+        tabbedMenuSetting.addTab("Log Pengiriman Data ", panelLogPenerimaan);
         
         tabbedMenuSetting.addChangeListener(e -> {
             int i = tabbedMenuSetting.getSelectedIndex();

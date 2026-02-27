@@ -83,6 +83,7 @@ public class LinenDAO {
                 n.kategoriLin = r.getString("kategori");
                 n.namaLin = r.getString("nama_linen");
                 n.lokasiLin = r.getString("lokasi");
+                n.jumlahCuci = r.getInt("jumlah_dicuci");
                 list.add(n);
             }
         }

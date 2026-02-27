@@ -5,6 +5,7 @@
 package silaris_client.panel;
 
 import java.util.List;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -84,24 +85,48 @@ public class PanelLogLinen extends javax.swing.JPanel {
     }
     
     private void setupTableColumnWidth() {
+        //Tabel Linen Masuk
         TableColumnModel columnModel = tblLogLinenMasuk.getColumnModel();
+        // Kolom No
         TableColumn colNo = columnModel.getColumn(0);
         colNo.setMinWidth(30);
         colNo.setPreferredWidth(40);
         colNo.setMaxWidth(50);
+        // Kolom Total Linen (diperkecil)
+        TableColumn colTotalLinen = columnModel.getColumn(5);
+        colTotalLinen.setMinWidth(65);
+        colTotalLinen.setPreferredWidth(75);
+        colTotalLinen.setMaxWidth(85);
         
+        //Tabel Linen Keluar
         TableColumnModel columnModel2 = tblLogLinenKeluar.getColumnModel();
+
+        // Kolom No
         TableColumn colNo2 = columnModel2.getColumn(0);
         colNo2.setMinWidth(30);
         colNo2.setPreferredWidth(40);
         colNo2.setMaxWidth(50);
+
+        // Kolom Total Linen
+        TableColumn colTotalLinen2 = columnModel2.getColumn(5);
+        colTotalLinen2.setMinWidth(65);
+        colTotalLinen2.setPreferredWidth(75);
+        colTotalLinen2.setMaxWidth(85);
         
+        //Tabel Detail
         TableColumnModel columnModel3 = tblDetailLog.getColumnModel();
+
+        // Kolom No
         TableColumn colNo3 = columnModel3.getColumn(0);
         colNo3.setMinWidth(30);
         colNo3.setPreferredWidth(40);
         colNo3.setMaxWidth(50);
 
+        // Kolom Total Cuci
+        TableColumn colTotalCuci3 = columnModel3.getColumn(5);
+        colTotalCuci3.setMinWidth(65);
+        colTotalCuci3.setPreferredWidth(75);
+        colTotalCuci3.setMaxWidth(85);
     }
  
     public void loadDataMasuk() {

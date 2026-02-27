@@ -28,7 +28,7 @@ public class PanelDataLinen extends javax.swing.JPanel {
         this.main = main;
         initComponents();
         
-        modelDL = new DefaultTableModel(new Object[]{"No","EPC","Kategori", "Nama Linen","Lokasi"},0);
+        modelDL = new DefaultTableModel(new Object[]{"No","EPC","Kategori", "Nama Linen","Lokasi","Total Cuci"},0);
         modelLC = new DefaultTableModel(new Object[]{"No","EPC","Kategori", "Nama Linen","Lokasi"},0);
         modelLP = new DefaultTableModel(new Object[]{"No","EPC","Kategori", "Nama Linen","Lokasi"},0);
         
@@ -75,7 +75,12 @@ public class PanelDataLinen extends javax.swing.JPanel {
             modelDL.setRowCount(0);
             int no = 1;
             for (Linen n : linenDAO.getAll()) {
-                modelDL.addRow(new Object[]{no++,n.epc,n.kategoriLin,n.namaLin,n.lokasiLin});
+                // Hitung hanya yang statusnya "Dipakai"
+                int jumlahDipakai = 0;
+                if (n.ketLin != null && n.ketLin.equalsIgnoreCase("Dipakai")) {
+                    jumlahDipakai = 1;
+                }
+                modelDL.addRow(new Object[]{no++,n.epc,n.kategoriLin,n.namaLin,n.lokasiLin,n.jumlahCuci});
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

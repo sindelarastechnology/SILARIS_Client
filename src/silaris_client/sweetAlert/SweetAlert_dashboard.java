@@ -2,12 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package silaris_client.panel;
+package silaris_client.sweetAlert;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SweetAlert extends JDialog {
+public class SweetAlert_dashboard extends JDialog {
 
     private float opacityLevel = 0f;
     private float iconScale = 0f;
@@ -15,7 +15,7 @@ public class SweetAlert extends JDialog {
 
     private boolean closing = false;
 
-    public SweetAlert(Frame parent, String message) {
+    public SweetAlert_dashboard(Frame parent, String message) {
         super(parent, false);
         setUndecorated(true);
         setSize(360, 200);
@@ -38,7 +38,7 @@ public class SweetAlert extends JDialog {
 
         // LOAD ICON
         ImageIcon iconImg = new ImageIcon(
-                getClass().getResource("/silaris_client_assets/icon_login.png"));
+                getClass().getResource("/silaris_client_assets/Login_Dashboard.png"));
         Image image = iconImg.getImage();
 
         JPanel iconPanel = new JPanel() {

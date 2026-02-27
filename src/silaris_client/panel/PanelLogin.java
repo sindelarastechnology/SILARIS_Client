@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import silaris_client.session.SessionSQLite;
 import silaris_client.service.LoginService;
 import javax.swing.JFrame;
+import silaris_client.sweetAlert.SweetAlert_login;
 
 /**
  *
@@ -31,23 +32,26 @@ public class PanelLogin extends javax.swing.JFrame {
         String password = txtPassword.getText();
 
         if(email.isEmpty() || password.isEmpty()){
-            javax.swing.JOptionPane.showMessageDialog(this, "Email & Password wajib diisi");
+            SweetAlert_login.warning(this, "Email & Password wajib diisi");
             return;
         }
 
         JSONObject rs = LoginService.login(email, password);
 
         if(rs != null){
-            javax.swing.JOptionPane.showMessageDialog(this, "Login berhasil");
 
-            // SIMPAN SESSION KE SQLITE
-            SessionSQLite.save(rs);
+            SweetAlert_login.success(this, "Berhasil Login", () -> {
 
-            new Main().setVisible(true);
-            this.dispose();
+                SessionSQLite.save(rs);
+                new Main().setVisible(true);
+                this.dispose();
+
+            });
 
         }else{
-            javax.swing.JOptionPane.showMessageDialog(this, "Email atau password salah");
+
+            SweetAlert_login.error(this, "Email atau password salah");
+
         }
     }
     

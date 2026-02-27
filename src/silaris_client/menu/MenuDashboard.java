@@ -9,7 +9,7 @@ import java.awt.Frame;
 import java.awt.Window;
 import javax.swing.SwingUtilities;
 import org.json.JSONObject;
-import silaris_client.panel.SweetAlert;
+import silaris_client.sweetAlert.SweetAlert_dashboard;
 import silaris_client.session.SessionSQLite;
 
 /**
@@ -42,7 +42,7 @@ public class MenuDashboard extends javax.swing.JPanel {
                         + ses.getString("nama_rs")
                         + "</b></center></html>";
 
-                    SweetAlert alert = new SweetAlert((Frame) window, message);
+                    SweetAlert_dashboard alert = new SweetAlert_dashboard((Frame) window, message);
                     alert.setVisible(true);
                 }
             });

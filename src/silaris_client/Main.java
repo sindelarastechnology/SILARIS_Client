@@ -8,6 +8,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import org.json.JSONObject;
 import silaris_client.ReaderConfig.ReaderManager;
 import silaris_client.config.RFIDTestReaderService;
@@ -41,6 +43,7 @@ import silaris_client.panel.PanelSinkronasiData;
 import silaris_client.panel.Panel_LinenKeluar;
 import silaris_client.panel.Panel_LinenMasuk;
 import silaris_client.session.SessionSQLite;
+import silaris_client.sweetAlert.SweetAlert_Logout;
 
 
 /**
@@ -155,16 +158,15 @@ public class Main extends javax.swing.JFrame {
         btnLogout.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int jawab = JOptionPane.showConfirmDialog(null,
-                        "Yakin ingin logout?",
-                        "Konfirmasi",
-                        JOptionPane.YES_NO_OPTION);
 
-                if(jawab == JOptionPane.YES_OPTION){
-                    SessionSQLite.clear(); // hapus session
-                    new PanelLogin().setVisible(true); // buka login
-                    dispose();
-                }
+                SweetAlert_Logout.show(
+                        (Frame) SwingUtilities.getWindowAncestor(btnLogout),
+                        () -> {
+                            SessionSQLite.clear();
+                            new PanelLogin().setVisible(true);
+                            dispose();
+                        }
+                );
             }
         });
 

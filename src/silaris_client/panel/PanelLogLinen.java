@@ -7,43 +7,123 @@ package silaris_client.panel;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import silaris_client.Main;
+import silaris_client.dao.DetailLogDAO;
 import silaris_client.dao.LogLinenDAO;
+import silaris_client.model.DetailLog;
 import silaris_client.model.LogLinen;
 public class PanelLogLinen extends javax.swing.JPanel {
 
     private Main main;
-    DefaultTableModel tabel1, tabel2;
-
+    DefaultTableModel tabel1, tabel2, tabel3;
+    DetailLogDAO detailLogDAO = new DetailLogDAO();
+    
+    String detailLogSelected;
+    
     public PanelLogLinen(Main main) {
         this.main = main;
         initComponents();
         
-        tabel1 = new DefaultTableModel(new Object[]{"ID Log","Tanggal","Petugas","Ruangan","Total Linen","Kategori"},0);
-        tabel2 = new DefaultTableModel(new Object[]{"ID Linen","EPC","ID Log","Nama Linen","Kategori","Total Cuci","Keterangan","Status"},0);
-        tblLogLinen.setModel(tabel1);
+        tabel3 = new DefaultTableModel(new Object[]{"No","ID Log","Tanggal","Petugas","Ruangan","Total Linen","Kategori"},0);
+        tabel1 = new DefaultTableModel(new Object[]{"No","ID Log","Tanggal","Petugas","Ruangan","Total Linen","Kategori"},0);
+        tabel2 = new DefaultTableModel(new Object[]{"No","ID Linen","EPC","Kategori","Nama Linen","Total Cuci","Keterangan"},0);
+        tblLogLinenMasuk.setModel(tabel1);
         tblDetailLog.setModel(tabel2);
+        tblLogLinenKeluar.setModel(tabel3);
+        
+        tblLogLinenMasuk.setDefaultEditor(Object.class, null);
+        tblLogLinenKeluar.setDefaultEditor(Object.class, null);
+        tblDetailLog.setDefaultEditor(Object.class, null);
+
+        
+        tblLogLinenMasuk.getSelectionModel().addListSelectionListener(ev -> {
+            if (!ev.getValueIsAdjusting()) {
+
+                tblLogLinenKeluar.clearSelection();
+
+                int x = tblLogLinenMasuk.getSelectedRow();
+                if (x >= 0) {
+                    detailLogSelected = tabel1.getValueAt(x,1).toString();
+                    loadLinen();
+                }
+            }
+        });
+
+        tblLogLinenKeluar.getSelectionModel().addListSelectionListener(ev -> {
+            if (!ev.getValueIsAdjusting()) {
+
+                tblLogLinenMasuk.clearSelection();
+
+                int x = tblLogLinenKeluar.getSelectedRow();
+                if (x >= 0) {
+                    detailLogSelected = tabel3.getValueAt(x,1).toString();
+                    loadLinen();
+                }
+            }
+        });
+
         
          loadData();
     }
 
-    public void loadData() {
+    public void loadDataMasuk() {
 
         LogLinenDAO dao = new LogLinenDAO();
-        List<LogLinen> list = dao.getAll();
+        List<LogLinen> list = dao.getAllLogMasuk();
 
         DefaultTableModel model =
-            (DefaultTableModel) tblLogLinen.getModel();
+            (DefaultTableModel) tblLogLinenMasuk.getModel();
 
         model.setRowCount(0);
-
+        int no = 1;
         for (LogLinen log : list) {
+            
             model.addRow(new Object[]{
+                no++,
                 log.getIdLog(),
                 log.getTanggal(),
                 log.getPetugas(),
-                log.getRuangan()
+                log.getRuangan(),
+                log.getTotalLinen(),
+                log.getKategori()
             });
         }
+    }
+    public void loadDataKeluar() {
+
+        LogLinenDAO dao = new LogLinenDAO();
+        List<LogLinen> list = dao.getAllLogKeluar();
+
+        DefaultTableModel model =
+            (DefaultTableModel) tblLogLinenKeluar.getModel();
+
+        model.setRowCount(0);
+        int no = 1;
+        for (LogLinen log : list) {
+            
+            model.addRow(new Object[]{
+                no++,
+                log.getIdLog(),
+                log.getTanggal(),
+                log.getPetugas(),
+                log.getRuangan(),
+                log.getTotalLinen(),
+                log.getKategori()
+            });
+        }
+    }
+    
+    public void loadData(){
+        loadDataMasuk();
+        loadDataKeluar();
+    }
+    
+    private void loadLinen() {
+        try {
+            tabel2.setRowCount(0);
+            int no = 1;
+            for (DetailLog n : detailLogDAO.getByIdLog(detailLogSelected)) {tabel2.addRow(new Object[]{no++,n.idLinenLog,n.epcLog,n.kategoriLog, n.namaLinenLog, n.jumlahCuciLog, n.keteranganLog});
+            }
+        } catch (Exception e) { e.printStackTrace(); }
     }
     
 
@@ -58,11 +138,17 @@ public class PanelLogLinen extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jPanel8 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblLogLinen = new javax.swing.JTable();
+        tblLogLinenMasuk = new javax.swing.JTable();
+        jPanel10 = new javax.swing.JPanel();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tblLogLinenKeluar = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -72,16 +158,16 @@ public class PanelLogLinen extends javax.swing.JPanel {
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 2));
 
+        jPanel8.setLayout(new java.awt.GridLayout(2, 1));
+
         jPanel4.setBackground(new java.awt.Color(255, 255, 102));
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        jLabel1.setText("Log Linen");
+        jLabel1.setText("Log Linen Masuk");
         jPanel4.add(jLabel1, new java.awt.GridBagConstraints());
 
-        jPanel6.setLayout(new java.awt.BorderLayout());
-
-        tblLogLinen.setModel(new javax.swing.table.DefaultTableModel(
+        tblLogLinenMasuk.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -92,23 +178,71 @@ public class PanelLogLinen extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(tblLogLinen);
+        jScrollPane1.setViewportView(tblLogLinenMasuk);
 
-        jPanel6.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
+        );
+
+        jPanel8.add(jPanel9);
+
+        jPanel11.setBackground(new java.awt.Color(255, 204, 204));
+        jPanel11.setLayout(new java.awt.GridBagLayout());
+
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel3.setText("Log Linen Keluar");
+        jPanel11.add(jLabel3, new java.awt.GridBagConstraints());
+
+        tblLogLinenKeluar.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane3.setViewportView(tblLogLinenKeluar);
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
+        );
+
+        jPanel8.add(jPanel10);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         jPanel1.add(jPanel2);
@@ -141,7 +275,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
             .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
@@ -158,7 +292,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 611, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1166, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -170,16 +304,22 @@ public class PanelLogLinen extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable tblDetailLog;
-    private javax.swing.JTable tblLogLinen;
+    private javax.swing.JTable tblLogLinenKeluar;
+    private javax.swing.JTable tblLogLinenMasuk;
     // End of variables declaration//GEN-END:variables
 }

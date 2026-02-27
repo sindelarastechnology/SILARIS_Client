@@ -91,7 +91,7 @@ public class LinenDAO {
     
     public List<Linen> getAllDicuci() throws Exception {
         List<Linen> list = new ArrayList<>();
-        String sql = "SELECT * FROM linen WHERE status = 'DICUCI' ORDER BY kategori ASC";
+        String sql = "SELECT * FROM linen WHERE keterangan = 'Dicuci' ORDER BY kategori ASC";
 
         try (Connection c = SQLiteConfig.connect();
              Statement s = c.createStatement();
@@ -110,9 +110,9 @@ public class LinenDAO {
         return list;
     }
     
-        public List<Linen> getAllDipakai() throws Exception {
+    public List<Linen> getAllDipakai() throws Exception {
         List<Linen> list = new ArrayList<>();
-        String sql = "SELECT * FROM linen WHERE status = 'DIPAKAI' ORDER BY kategori ASC";
+        String sql = "SELECT * FROM linen WHERE keterangan = 'Dipakai' ORDER BY kategori ASC";
 
         try (Connection c = SQLiteConfig.connect();
              Statement s = c.createStatement();
@@ -130,4 +130,29 @@ public class LinenDAO {
         }
         return list;
     }
+    
+    public void updateKeluar(Connection c,
+                            String idLinen,
+                            int jumlahCuci,
+                            String lokasiBaru,
+                            String keterangan,
+                            String status) throws Exception {
+
+       String sql = "UPDATE linen SET " +
+               "jumlah_dicuci = ?, " +
+               "lokasi = ?, " +
+               "status = ?, " +
+               "keterangan = ? " +
+               "WHERE id_linen = ?";
+
+       try (PreparedStatement p = c.prepareStatement(sql)) {
+           p.setInt(1, jumlahCuci);
+           p.setString(2, lokasiBaru);
+           p.setString(3, status);
+           p.setString(4, keterangan);
+           p.setString(5, idLinen);
+           p.executeUpdate();
+       }
+   }
+
 }

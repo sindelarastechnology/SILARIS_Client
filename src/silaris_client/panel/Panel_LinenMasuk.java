@@ -4,6 +4,8 @@
  */
 package silaris_client.panel;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,13 +18,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import silaris_client.Main;
 import silaris_client.config.SQLiteConfig;
+import silaris_client.dao.DetailLogDAO;
+import silaris_client.dao.LinenDAO;
 import silaris_client.dao.LogLinenDAO;
 import silaris_client.model.LogLinen;
 import silaris_client.model.Ruangan;
@@ -40,6 +46,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private final Map<String, Long> bufferTags = new HashMap<>();
     private final Map<String, Long> activeTags = new HashMap<>();
     private final Set<String> detectedHistory = new HashSet<>();
+    private final Set<String> validDatabaseTags = new HashSet<>();
     private static final long TIMEOUT = 800;
     private Timer refreshTimer;
     private Main main;
@@ -53,12 +60,36 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         tabel1 = new DefaultTableModel(new Object[]{"No","EPC"},0);
         tabel2 = new DefaultTableModel(new Object[]{"No","ID","EPC","Kategori","Nama Linen", "Jumlah Cuci", "Lokasi", "Status", "Keterangan"},0);
         tblCekLinenMasuk.setModel(tabel1);
+        tblCekLinenMasuk.setDefaultRenderer(Object.class,
+            new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(
+                        JTable table, Object value,
+                        boolean isSelected, boolean hasFocus,
+                        int row, int column) {
+
+                    Component c = super.getTableCellRendererComponent(
+                            table, value, isSelected, hasFocus, row, column);
+
+                    String epc = table.getValueAt(row, 1).toString();
+
+                    if(validDatabaseTags.contains(epc)) {
+                        c.setBackground(new Color(170, 255, 170));
+                    } else {
+                        c.setBackground(new Color(255, 120, 120)); // merah soft
+                    }
+
+                    return c;
+                }
+        });
         tblLinenMasuk.setModel(tabel2);
-        
+        txtRuangan.setEditable(false);
+        txtRuangan.setEnabled(false);
         instance = this;  
         btnStop.setEnabled(false);
         btnReset.setEnabled(false);
-        loadRuangan(); 
+//        loadRuangan(); 
         setupTableColumnWidth();
     }
     
@@ -122,67 +153,38 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     }
     private void loadLinenFromDatabase(String epc) {
 
-        try {
+        String sql = "SELECT * FROM linen WHERE epc = ?";
 
-            Connection c = SQLiteConfig.connect();
+        try (Connection c = SQLiteConfig.connect();
+             PreparedStatement ps = c.prepareStatement(sql)) {
 
-            String sql = "SELECT * FROM linen WHERE epc = ?";
-            PreparedStatement ps = c.prepareStatement(sql);
             ps.setString(1, epc);
 
-            ResultSet r = ps.executeQuery();
+            try (ResultSet r = ps.executeQuery()) {
 
-            if(r.next()) {
+                if (r.next()) {
 
-                tabel2.addRow(new Object[]{
-                        tabel2.getRowCount() + 1,
-                        r.getString("id_linen"),
-                        r.getString("epc"),
-                        r.getString("kategori"),
-                        r.getString("nama_linen"),
-                        r.getInt("jumlah_dicuci"),
-                        r.getString("lokasi"),
-                        r.getString("status"),
-                        r.getString("keterangan")
-                });
+                    validDatabaseTags.add(epc);
+
+                    tabel2.addRow(new Object[]{
+                            tabel2.getRowCount() + 1,
+                            r.getString("id_linen"),
+                            r.getString("epc"),
+                            r.getString("kategori"),
+                            r.getString("nama_linen"),
+                            r.getInt("jumlah_dicuci"),
+                            r.getString("lokasi"),
+                            r.getString("status"),
+                            r.getString("keterangan")
+                    });
+                }
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public void loadRuangan() {
-        try {
-            cbRuangan.removeAllItems();
 
-            String sql = "SELECT * FROM ruangan ORDER BY kode_ruangan ASC";
-            Connection c = SQLiteConfig.connect();
-            Statement s = c.createStatement();
-            ResultSet r = s.executeQuery(sql);
-
-           while (r.next()) {
-
-               Ruangan ruangan = new Ruangan();
-                ruangan.id = r.getString("id");
-                ruangan.kodeRuangan = r.getString("kode_ruangan");
-                ruangan.namaRuangan = r.getString("nama_ruangan");
-                ruangan.keterangan = r.getString("keterangan");
-
-                cbRuangan.addItem(ruangan);
-            }
-                cbRuangan.revalidate();
-                cbRuangan.repaint();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal load ruangan: " + e.getMessage());
-       }
-    } 
-    
-     public static void refreshCombo() {
-        if (instance != null) {
-            instance.loadRuangan();
-        }
-    }
      
      public void resetTable() {
         tabel1.setRowCount(0);
@@ -205,7 +207,6 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
    
     private void resetForm() {
         txtPetugas.setText("");
-//        cbRuangan.setSelectedIndex(-1);
         setTanggalOtomatis();
     }
     
@@ -214,46 +215,90 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     }
     
     private void proses() {
-        Ruangan ruangan = (Ruangan) cbRuangan.getSelectedItem();
+
         String petugas = txtPetugas.getText().trim();
         String tanggal = txtTanggalMasuk.getText();
-
-        // ================= VALIDASI =================
-        if (ruangan == null) {
-            JOptionPane.showMessageDialog(this, "Silakan pilih ruangan!");
-            return;
-        }
 
         if (petugas.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Petugas tidak boleh kosong!");
             return;
         }
 
-        try {
-            // ================= SIMPAN KE DATABASE =================
-            String id = generateId();
+        if (tabel2.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Tidak ada linen yang keluar!");
+            return;
+        }
+
+        try (Connection c = SQLiteConfig.connect()) {
+
+            c.setAutoCommit(false); // TRANSAKSI BEGIN
+
+            String idLog = generateId();
 
             LogLinen log = new LogLinen();
-            log.setIdLog(id);
+            log.setIdLog(idLog);
             log.setTanggal(tanggal);
             log.setPetugas(petugas);
-            log.setRuangan(ruangan.getNama()); 
-            // atau ruangan.getKodeRuangan()
+            log.setTotalLinen(tabel2.getRowCount());
+            log.setRuangan("R. Laundry");
+            log.setKategori("Masuk");
 
-            LogLinenDAO dao = new LogLinenDAO();
-            dao.insert(log);
+            LogLinenDAO logDao = new LogLinenDAO();
+            DetailLogDAO detailDao = new DetailLogDAO();
+            LinenDAO linenDao = new LinenDAO();
 
-            JOptionPane.showMessageDialog(this, "Pengambilan linen berhasil disimpan!");
+            logDao.insert(c, log);
 
-            if (main != null) {
-                main.refreshLogLinen();
+            for (int i = 0; i < tabel2.getRowCount(); i++) {
+
+                String idLinen = tabel2.getValueAt(i, 1).toString();
+                String epc = tabel2.getValueAt(i, 2).toString();
+                String kategori = tabel2.getValueAt(i, 3).toString();
+                String nama = tabel2.getValueAt(i, 4).toString();
+                int jumlahCuci = Integer.parseInt(
+                        tabel2.getValueAt(i, 5).toString());
+
+                String lokasiAsal = tabel2.getValueAt(i, 6).toString();
+                String lokasiBaru = "R. Laundry";
+                String status = "Dicuci";
+
+                String keterangan =
+                        "Ruangan " + lokasiBaru +
+                        " Oleh " + petugas;
+
+                detailDao.insert(
+                        c,
+                        UUID.randomUUID().toString(),
+                        idLog,
+                        idLinen,
+                        epc,
+                        kategori,
+                        nama,
+                        jumlahCuci,
+                        lokasiAsal,
+                        lokasiBaru,
+                        keterangan
+                );
+
+                linenDao.updateKeluar(c, idLinen, jumlahCuci, lokasiBaru, status, keterangan);
             }
+
+            c.commit();
+
+            JOptionPane.showMessageDialog(this,
+                    "Pengembalian linen berhasil disimpan!");
+
+            resetTable();
             resetForm();
+
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menyimpan data!");
+            JOptionPane.showMessageDialog(this,
+                    "Gagal menyimpan transaksi!");
         }
-     }
+    }
+
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -274,7 +319,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         jLabel8 = new javax.swing.JLabel();
         jPanel14 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        cbRuangan = new javax.swing.JComboBox<>();
+        txtRuangan = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtPetugas = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -374,10 +419,11 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
         jPanel14.setLayout(new java.awt.GridLayout(3, 2));
 
         jLabel4.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
-        jLabel4.setText("Pilih Ruangan:");
+        jLabel4.setText("Ruangan:");
         jPanel14.add(jLabel4);
 
-        jPanel14.add(cbRuangan);
+        txtRuangan.setText("R. Laundry");
+        jPanel14.add(txtRuangan);
 
         jLabel6.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
         jLabel6.setText("Petugas:");
@@ -551,7 +597,6 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnStart;
     private javax.swing.JButton btnStop;
-    private javax.swing.JComboBox<Ruangan> cbRuangan;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -580,6 +625,7 @@ public class Panel_LinenMasuk extends javax.swing.JPanel {
     private javax.swing.JTable tblCekLinenMasuk;
     private javax.swing.JTable tblLinenMasuk;
     private javax.swing.JTextField txtPetugas;
+    private javax.swing.JTextField txtRuangan;
     private javax.swing.JTextField txtTanggalMasuk;
     // End of variables declaration//GEN-END:variables
 }

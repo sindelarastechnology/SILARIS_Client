@@ -6,6 +6,8 @@ package silaris_client.panel;
 
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import silaris_client.Main;
 import silaris_client.dao.DetailLogDAO;
 import silaris_client.dao.LogLinenDAO;
@@ -33,6 +35,21 @@ public class PanelLogLinen extends javax.swing.JPanel {
         tblLogLinenMasuk.setDefaultEditor(Object.class, null);
         tblLogLinenKeluar.setDefaultEditor(Object.class, null);
         tblDetailLog.setDefaultEditor(Object.class, null);
+        
+        //Log Linen Masuk
+        tblLogLinenMasuk.getColumnModel().getColumn(1).setMinWidth(0);
+        tblLogLinenMasuk.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblLogLinenMasuk.getColumnModel().getColumn(1).setWidth(0);
+        
+        //Log Linen Keluar
+        tblLogLinenKeluar.getColumnModel().getColumn(1).setMinWidth(0);
+        tblLogLinenKeluar.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblLogLinenKeluar.getColumnModel().getColumn(1).setWidth(0);
+
+        //Log Linen Detail
+        tblDetailLog.getColumnModel().getColumn(1).setMinWidth(0);
+        tblDetailLog.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblDetailLog.getColumnModel().getColumn(1).setWidth(0);
 
         
         tblLogLinenMasuk.getSelectionModel().addListSelectionListener(ev -> {
@@ -63,8 +80,30 @@ public class PanelLogLinen extends javax.swing.JPanel {
 
         
          loadData();
+         setupTableColumnWidth();
     }
+    
+    private void setupTableColumnWidth() {
+        TableColumnModel columnModel = tblLogLinenMasuk.getColumnModel();
+        TableColumn colNo = columnModel.getColumn(0);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
+        
+        TableColumnModel columnModel2 = tblLogLinenKeluar.getColumnModel();
+        TableColumn colNo2 = columnModel2.getColumn(0);
+        colNo2.setMinWidth(30);
+        colNo2.setPreferredWidth(40);
+        colNo2.setMaxWidth(50);
+        
+        TableColumnModel columnModel3 = tblDetailLog.getColumnModel();
+        TableColumn colNo3 = columnModel3.getColumn(0);
+        colNo3.setMinWidth(30);
+        colNo3.setPreferredWidth(40);
+        colNo3.setMaxWidth(50);
 
+    }
+ 
     public void loadDataMasuk() {
 
         LogLinenDAO dao = new LogLinenDAO();
@@ -184,15 +223,15 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
         );
 
         jPanel8.add(jPanel9);
@@ -222,14 +261,14 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
         );
 
         jPanel8.add(jPanel10);
@@ -238,11 +277,11 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
         );
 
         jPanel1.add(jPanel2);
@@ -275,8 +314,8 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
-            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -292,11 +331,11 @@ public class PanelLogLinen extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1166, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 795, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 

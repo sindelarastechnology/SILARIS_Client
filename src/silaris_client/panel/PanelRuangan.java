@@ -30,6 +30,11 @@ public class PanelRuangan extends javax.swing.JPanel {
             new Object[]{"No","ID Ruangan","Kode Ruangan","Nama Ruangan", "Keterangan"},0
         );
         tblRuangan.setModel(r);
+        
+        tblRuangan.getColumnModel().getColumn(1).setMinWidth(0);
+        tblRuangan.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblRuangan.getColumnModel().getColumn(1).setWidth(0);
+        
          
         loadData(); 
         setupTableColumnWidth();

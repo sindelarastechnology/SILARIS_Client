@@ -8,6 +8,7 @@ package silaris_client.panel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import silaris_client.Main;
 import silaris_client.dao.LinenDAO;
 import silaris_client.dao.PenerimaanDAO;
 import silaris_client.model.Penerimaan;
@@ -18,13 +19,16 @@ import silaris_client.model.Linen;
  * @author HP
  */
 public class PanelLogPenerimaan extends javax.swing.JPanel {
-
+    
+    private Main main;
+    
     DefaultTableModel modelP, modelD;
     PenerimaanDAO penerimaanDAO = new PenerimaanDAO();
     LinenDAO linenDAO = new LinenDAO();
     
     String penerimaanSelected;
-    public PanelLogPenerimaan() {
+    public PanelLogPenerimaan(Main main) {
+        this.main = main;
         initComponents();
         
         modelP = new DefaultTableModel(new Object[]{"No","ID","Tanggal","Petugas", "Jumlah Linen", "Keterangan"},0);
@@ -68,7 +72,7 @@ public class PanelLogPenerimaan extends javax.swing.JPanel {
         colNo2.setMaxWidth(50);
     }
     
-    private void loadPenerimaan() {
+    public void loadPenerimaan() {
         try {
             modelP.setRowCount(0);
             int no = 1;

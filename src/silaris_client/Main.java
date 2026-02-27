@@ -83,16 +83,35 @@ public class Main extends javax.swing.JFrame {
         updateScanUI(ReaderType.KELUAR, false);
         
         dashboard = new MenuDashboard();
-        masterdatamenu = new MenuMasterData();
-        laundrymenu = new MenuLaundry(panelMasuk, panelKeluar, panelLog);
+        masterdatamenu = new MenuMasterData(this);
+        laundrymenu = new MenuLaundry(this, panelKeluar, panelMasuk);
         settingmenu = new MenuSetting(panelSinkronasiData);
         
         tabbedPaneUtama.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tabbedPaneUtama.addTab("Dashboard", dashboard);
-        tabbedPaneUtama.addTab("Master Data ", masterdatamenu);
+        tabbedPaneUtama.addTab("Master Data", masterdatamenu);
         tabbedPaneUtama.addTab("Laundry ", laundrymenu);
         tabbedPaneUtama.addTab("Setting ", settingmenu);
         
+        tabbedPaneUtama.addChangeListener(e -> {
+
+            int selectedIndex = tabbedPaneUtama.getSelectedIndex();
+            String title = tabbedPaneUtama.getTitleAt(selectedIndex);
+
+            if (title.equals("Dashboard")) {
+//                dashboard.loadCounts();
+            }
+            if (title.equals("Laundry ")) {
+                laundrymenu.loadData();
+            }
+            if (title.equals("Master Data")) {
+                masterdatamenu.loadLinen();
+                masterdatamenu.loadRuangan();
+            }
+            if (title.equals("Setting ")) {
+                settingmenu.loadLog();
+            }
+        });
         
         
         // ambil nama RS dari session
@@ -200,6 +219,7 @@ public class Main extends javax.swing.JFrame {
         
         cbPortKeluar.addActionListener(e -> validatePortSelection());
         cbPortMasuk.addActionListener(e -> validatePortSelection());
+        
         
     }
 

@@ -9,6 +9,7 @@ package silaris_client.panel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import silaris_client.Main;
 import silaris_client.model.Linen;
 import silaris_client.dao.LinenDAO;
 
@@ -18,12 +19,13 @@ import silaris_client.dao.LinenDAO;
  * @author HP
  */
 public class PanelDataLinen extends javax.swing.JPanel {
-
+    private Main main;
     DefaultTableModel modelDL, modelLC, modelLP;
     LinenDAO linenDAO = new LinenDAO();
     
     String penerimaanSelected;
-    public PanelDataLinen() {
+    public PanelDataLinen(Main main) {
+        this.main = main;
         initComponents();
         
         modelDL = new DefaultTableModel(new Object[]{"No","EPC","Kategori", "Nama Linen","Lokasi"},0);
@@ -34,12 +36,19 @@ public class PanelDataLinen extends javax.swing.JPanel {
         tblLinenCuci.setModel(modelLC);
         tblLinenPakai.setModel(modelLP);
         
-        loadDataLinen();
-        loadLinenCuci();
-        loadLinenPakai();
+        loadLinen();
+        
+        
         setupTableColumnWidth();
          
     }
+    
+    public void loadLinen(){
+        loadDataLinen();
+        loadLinenCuci();
+        loadLinenPakai();
+    }
+    
     
         private void setupTableColumnWidth() {
         TableColumnModel columnModel = tblDataLinen.getColumnModel();

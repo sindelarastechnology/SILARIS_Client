@@ -82,7 +82,7 @@ public class Main extends javax.swing.JFrame {
         updateScanUI(ReaderType.MASUK, false);
         updateScanUI(ReaderType.KELUAR, false);
         
-        dashboard = new MenuDashboard();
+        dashboard = new MenuDashboard(this);
         masterdatamenu = new MenuMasterData(this);
         laundrymenu = new MenuLaundry(this, panelKeluar, panelMasuk);
         settingmenu = new MenuSetting(panelSinkronasiData);
@@ -99,7 +99,7 @@ public class Main extends javax.swing.JFrame {
             String title = tabbedPaneUtama.getTitleAt(selectedIndex);
 
             if (title.equals("Dashboard")) {
-//                dashboard.loadCounts();
+                dashboard.loadCounts();
             }
             if (title.equals("Laundry ")) {
                 laundrymenu.loadData();
@@ -207,6 +207,8 @@ public class Main extends javax.swing.JFrame {
 
             }
         });
+        lbUser.setVisible(false);
+        popup.setVisible(false);
         
         addWindowListener(new WindowAdapter() {
             @Override

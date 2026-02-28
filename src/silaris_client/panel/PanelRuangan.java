@@ -78,10 +78,10 @@ public class PanelRuangan extends javax.swing.JPanel {
         }
 
         Ruangan r = new Ruangan();
-        r.id = tblRuangan.getValueAt(row, 0).toString();
-        r.kodeRuangan = tblRuangan.getValueAt(row, 1).toString();
-        r.namaRuangan = tblRuangan.getValueAt(row, 2).toString();
-        r.keterangan  = tblRuangan.getValueAt(row, 3).toString();
+        r.id = tblRuangan.getValueAt(row, 1).toString();
+        r.kodeRuangan = tblRuangan.getValueAt(row, 2).toString();
+        r.namaRuangan = tblRuangan.getValueAt(row, 3).toString();
+        r.keterangan  = tblRuangan.getValueAt(row, 4).toString();
 
         new PanelRuanganDialog(
             (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
@@ -100,7 +100,7 @@ public class PanelRuangan extends javax.swing.JPanel {
             }
 
             // Ambil ID dari kolom pertama (asumsikan kolom 0 = ID)
-             String id = tblRuangan.getValueAt(r, 0).toString();
+             String id = tblRuangan.getValueAt(r, 1).toString();
 
             // Konfirmasi sebelum hapus
             int confirm = JOptionPane.showConfirmDialog(

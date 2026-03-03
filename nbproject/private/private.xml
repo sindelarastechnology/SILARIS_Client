@@ -2,15 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/panel/PanelDataLinen.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/dao/LinenDAO.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/panel/PanelRuangan.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/menu/MenuDashboard.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/dao/DashboardDAO.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/config/SQLiteConfig.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/dao/RuanganDAO.java</file>
-            <file>file:/D:/Project/SILARIS_Client/src/silaris_client/Main.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

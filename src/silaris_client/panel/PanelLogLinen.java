@@ -14,6 +14,12 @@ import silaris_client.dao.DetailLogDAO;
 import silaris_client.dao.LogLinenDAO;
 import silaris_client.model.DetailLog;
 import silaris_client.model.LogLinen;
+import com.toedter.calendar.JDateChooser;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class PanelLogLinen extends javax.swing.JPanel {
 
     private Main main;
@@ -78,11 +84,49 @@ public class PanelLogLinen extends javax.swing.JPanel {
                 }
             }
         });
-
         
          loadData();
          setupTableColumnWidth();
     }
+    
+    private void filterDariTabel(JTable table) {
+
+        Date tglAwal = dcTglAwal.getDate();
+        Date tglAkhir = dcTglAkhir.getDate();
+
+        if (tglAwal == null || tglAkhir == null) {
+            JOptionPane.showMessageDialog(this, "Pilih tanggal dulu!");
+            return;
+        }
+
+        if (tglAwal.after(tglAkhir)) {
+            JOptionPane.showMessageDialog(this,
+                    "Tanggal awal tidak boleh lebih besar dari tanggal akhir!");
+            return;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        String awal = sdf.format(tglAwal);
+        String akhir = sdf.format(tglAkhir);
+
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+
+        sorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+
+            @Override
+            public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+
+                String tanggalTabel = entry.getStringValue(2);
+
+                return tanggalTabel.compareTo(awal) >= 0 &&
+                       tanggalTabel.compareTo(akhir) <= 0;
+            }
+        });
+    }
+
     
     private void setupTableColumnWidth() {
         //Tabel Linen Masuk
@@ -219,6 +263,11 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel7 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblDetailLog = new javax.swing.JTable();
+        panelFilter = new javax.swing.JPanel();
+        dcTglAwal = new com.toedter.calendar.JDateChooser();
+        dcTglAkhir = new com.toedter.calendar.JDateChooser();
+        btnFilter = new javax.swing.JButton();
+        btnReset = new javax.swing.JButton();
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 2));
 
@@ -256,7 +305,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
         );
 
         jPanel8.add(jPanel9);
@@ -293,7 +342,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE))
         );
 
         jPanel8.add(jPanel10);
@@ -302,11 +351,11 @@ public class PanelLogLinen extends javax.swing.JPanel {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         jPanel1.add(jPanel2);
@@ -347,25 +396,73 @@ public class PanelLogLinen extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3);
+
+        panelFilter.setBackground(new java.awt.Color(153, 255, 255));
+        panelFilter.setLayout(new java.awt.GridBagLayout());
+
+        dcTglAwal.setPreferredSize(new java.awt.Dimension(130, 22));
+        panelFilter.add(dcTglAwal, new java.awt.GridBagConstraints());
+
+        dcTglAkhir.setPreferredSize(new java.awt.Dimension(130, 22));
+        panelFilter.add(dcTglAkhir, new java.awt.GridBagConstraints());
+
+        btnFilter.setBackground(new java.awt.Color(39, 174, 96));
+        btnFilter.setText("Filter");
+        btnFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFilterActionPerformed(evt);
+            }
+        });
+        panelFilter.add(btnFilter, new java.awt.GridBagConstraints());
+
+        btnReset.setBackground(new java.awt.Color(127, 140, 141));
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
+        panelFilter.add(btnReset, new java.awt.GridBagConstraints());
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 795, Short.MAX_VALUE)
+            .addComponent(panelFilter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(panelFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFilterActionPerformed
+        filterDariTabel(tblLogLinenMasuk);
+        filterDariTabel(tblLogLinenKeluar);
+    }//GEN-LAST:event_btnFilterActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        tblLogLinenMasuk.setRowSorter(null);
+        tblLogLinenKeluar.setRowSorter(null);
+
+        dcTglAwal.setDate(null);
+        dcTglAkhir.setDate(null);
+    }//GEN-LAST:event_btnResetActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFilter;
+    private javax.swing.JButton btnReset;
+    private com.toedter.calendar.JDateChooser dcTglAkhir;
+    private com.toedter.calendar.JDateChooser dcTglAwal;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -382,6 +479,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JPanel panelFilter;
     private javax.swing.JTable tblDetailLog;
     private javax.swing.JTable tblLogLinenKeluar;
     private javax.swing.JTable tblLogLinenMasuk;

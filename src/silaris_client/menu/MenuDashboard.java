@@ -39,6 +39,7 @@ public class MenuDashboard extends javax.swing.JPanel {
     private JPanel panelData;
     private JTable table;
     private DefaultTableModel model;
+    private JPanel activeCard = null;
     
     private Main main;
     private MenuDashboard menuDashboard;
@@ -54,13 +55,20 @@ public class MenuDashboard extends javax.swing.JPanel {
     public void loadCounts() {
         if (dashboardContainer != null) {
             refreshDashboard();
+            resetTable();
         }
     }
     
     @Override
     public void addNotify() {
         super.addNotify();
-        
+
+        // refresh card dashboard
+        refreshDashboard();
+
+        // reset card aktif
+        activeCard = null;
+
         if (!alertShown) {
             alertShown = true;
 
@@ -68,19 +76,31 @@ public class MenuDashboard extends javax.swing.JPanel {
                 Window window = SwingUtilities.getWindowAncestor(this);
                 if (window instanceof Frame) {
 
-                   String message = "<html><center>"
-                        + "Autentikasi Berhasil<br>"
-                        + "Selamat Datang, <b>"
-                        + ses.getString("nama_rs")
-                        + "</b></center></html>";
+                    String message = "<html><center>"
+                            + "Autentikasi Berhasil<br>"
+                            + "Selamat Datang, <b>"
+                            + ses.getString("nama_rs")
+                            + "</b></center></html>";
 
-                    SweetAlert_dashboard alert = new SweetAlert_dashboard((Frame) window, message);
+                    SweetAlert_dashboard alert =
+                            new SweetAlert_dashboard((Frame) window, message);
+
                     alert.setVisible(true);
                 }
             });
         }
     }
     
+    private void resetTable() {
+
+        model.setRowCount(0);
+        model.setColumnCount(0);
+
+        model.fireTableDataChanged();
+
+        table.revalidate();
+        table.repaint();
+    }
     // ================================
     // INISIALISASI DASHBOARD
     // ================================
@@ -160,39 +180,90 @@ public class MenuDashboard extends javax.swing.JPanel {
     // ================================
     // TEMPLATE CARD MODERN
     // ================================
-   private JPanel createStatCard(String title,
-                                  String value,
-                                  Color color,
-                                  Runnable action) {
+    private JPanel createStatCard(String title,
+                               String value,
+                               Color color,
+                               Runnable action) {
 
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220,220,220)),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        ));
+     JPanel card = new JPanel(new BorderLayout());
+     card.setBackground(Color.WHITE);
 
-        JLabel lblTitle = new JLabel(title);
-        lblTitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblTitle.setForeground(new Color(130,130,130));
+     Color borderNormal = new Color(220,220,220);
+     Color borderHover  = color;
 
-        JLabel lblValue = new JLabel(value);
-        lblValue.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        lblValue.setForeground(color);
+     card.setBorder(BorderFactory.createCompoundBorder(
+             BorderFactory.createLineBorder(borderNormal),
+             BorderFactory.createEmptyBorder(20,20,20,20)
+     ));
 
-        card.add(lblTitle, BorderLayout.NORTH);
-        card.add(lblValue, BorderLayout.CENTER);
+     JLabel lblTitle = new JLabel(title);
+     lblTitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+     lblTitle.setForeground(new Color(130,130,130));
 
-        // EVENT KLIK
-        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        card.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                action.run();
-            }
-        });
+     JLabel lblValue = new JLabel(value);
+     lblValue.setFont(new Font("Segoe UI", Font.BOLD, 32));
+     lblValue.setForeground(color);
 
-        return card;
-    }
+     card.add(lblTitle, BorderLayout.NORTH);
+     card.add(lblValue, BorderLayout.CENTER);
+
+     card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+     card.addMouseListener(new java.awt.event.MouseAdapter() {
+
+         @Override
+         public void mouseEntered(java.awt.event.MouseEvent evt) {
+
+             if(card != activeCard){
+                 card.setBackground(new Color(245,245,245));
+
+                 card.setBorder(BorderFactory.createCompoundBorder(
+                         BorderFactory.createLineBorder(borderHover,2),
+                         BorderFactory.createEmptyBorder(19,19,19,19)
+                 ));
+             }
+         }
+
+         @Override
+         public void mouseExited(java.awt.event.MouseEvent evt) {
+
+             if(card != activeCard){
+                 card.setBackground(Color.WHITE);
+
+                 card.setBorder(BorderFactory.createCompoundBorder(
+                         BorderFactory.createLineBorder(borderNormal),
+                         BorderFactory.createEmptyBorder(20,20,20,20)
+                 ));
+             }
+         }
+
+         @Override
+         public void mouseClicked(java.awt.event.MouseEvent evt) {
+
+             // reset card sebelumnya
+             if(activeCard != null){
+                 activeCard.setBackground(Color.WHITE);
+                 activeCard.setBorder(BorderFactory.createCompoundBorder(
+                         BorderFactory.createLineBorder(borderNormal),
+                         BorderFactory.createEmptyBorder(20,20,20,20)
+                 ));
+             }
+
+             // set card aktif
+             activeCard = card;
+
+             card.setBackground(new Color(245,245,245));
+             card.setBorder(BorderFactory.createCompoundBorder(
+                     BorderFactory.createLineBorder(borderHover,2),
+                     BorderFactory.createEmptyBorder(19,19,19,19)
+             ));
+
+             action.run();
+         }
+     });
+
+     return card; // ← tetap harus ada
+ }
        // ================================
     // LOAD DATA TOTAL LINEN
     // ================================

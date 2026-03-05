@@ -483,7 +483,7 @@ public class Main extends javax.swing.JFrame {
         jPanel3.setLayout(new java.awt.BorderLayout());
 
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/silaris_client_assets/Refresh_2.png"))); // NOI18N
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/silaris_client_assets/Sync_1.png"))); // NOI18N
         jLabel8.setToolTipText("Load Ports");
         jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {

@@ -19,6 +19,12 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.sql.Connection;
+import java.util.HashMap;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
+import silaris_client.config.SQLiteConfig;
 
 public class PanelLogLinen extends javax.swing.JPanel {
 
@@ -233,6 +239,35 @@ public class PanelLogLinen extends javax.swing.JPanel {
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
+    private void cetakLaporan() {
+
+        if (detailLogSelected == null) {
+            JOptionPane.showMessageDialog(this, "Pilih data log terlebih dahulu!");
+            return;
+        }
+
+        try {
+
+            Connection conn = SQLiteConfig.connect();
+
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("ID_LOG", detailLogSelected);
+            param.put("TANGGAL_CETAK", new java.util.Date());
+
+            JasperReport jr = (JasperReport) JRLoader.loadObject(
+                    getClass().getResource("/report/ReportLaundry.jasper"));
+
+            JasperPrint jp = JasperFillManager.fillReport(jr, param, conn);
+
+            JasperViewer viewer = new JasperViewer(jp, false);
+            viewer.setTitle("Laporan Log Linen");
+            viewer.setVisible(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal mencetak laporan!");
+        }
+    }
     
 
     /**
@@ -268,6 +303,7 @@ public class PanelLogLinen extends javax.swing.JPanel {
         dcTglAkhir = new com.toedter.calendar.JDateChooser();
         btnFilter = new javax.swing.JButton();
         btnReset = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         jPanel1.setLayout(new java.awt.GridLayout(1, 2));
 
@@ -428,6 +464,15 @@ public class PanelLogLinen extends javax.swing.JPanel {
         });
         panelFilter.add(btnReset, new java.awt.GridBagConstraints());
 
+        jButton1.setBackground(new java.awt.Color(255, 102, 102));
+        jButton1.setText("Cetak");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        panelFilter.add(jButton1, new java.awt.GridBagConstraints());
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -457,12 +502,17 @@ public class PanelLogLinen extends javax.swing.JPanel {
         dcTglAkhir.setDate(null);
     }//GEN-LAST:event_btnResetActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        cetakLaporan();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnFilter;
     private javax.swing.JButton btnReset;
     private com.toedter.calendar.JDateChooser dcTglAkhir;
     private com.toedter.calendar.JDateChooser dcTglAwal;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -1,7 +1,6 @@
 package silaris_client.dao;
 
 import silaris_client.model.Ruangan;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class RuanganDAO {
 
     public List<Ruangan> getAll() throws Exception {
         List<Ruangan> list = new ArrayList<>();
-        String sql = "SELECT * FROM ruangan ORDER BY id ASC";
+        String sql = "SELECT * FROM ruangan ORDER BY kode_ruangan ASC";
 
         try (Connection c = SQLiteConfig.connect();
              Statement s = c.createStatement();

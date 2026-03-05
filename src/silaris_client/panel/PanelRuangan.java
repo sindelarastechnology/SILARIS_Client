@@ -6,6 +6,9 @@ package silaris_client.panel;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import silaris_client.Main;
 import silaris_client.dao.RuanganDAO;
 import silaris_client.model.Ruangan;
 
@@ -14,30 +17,46 @@ import silaris_client.model.Ruangan;
  * @author ASUS
  */
 public class PanelRuangan extends javax.swing.JPanel {
-    
+    private Main main;
     DefaultTableModel r;
     private PanelRuangan panel;
     private Ruangan ruangan;
     RuanganDAO dao = new RuanganDAO();
     private Object id;
-    public PanelRuangan() {
+    public PanelRuangan(Main main) {
+        this.main = main;
         initComponents();
          r = new DefaultTableModel(
-            new Object[]{"ID Ruangan","Kode Ruangan","Nama Ruangan", "Keterangan"},0
+            new Object[]{"No","ID Ruangan","Kode Ruangan","Nama Ruangan", "Keterangan"},0
         );
         tblRuangan.setModel(r);
+        
+        tblRuangan.getColumnModel().getColumn(1).setMinWidth(0);
+        tblRuangan.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblRuangan.getColumnModel().getColumn(1).setWidth(0);
+        
          
         loadData(); 
+        setupTableColumnWidth();
     }
     
-    void loadData() {
+    private void setupTableColumnWidth() {
+        TableColumnModel columnModel = tblRuangan.getColumnModel();
+        TableColumn colNo = columnModel.getColumn(0);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
+    }
+    
+    public void loadData() {
         r.setRowCount(0);
-
+        int no = 1;
         try {
             RuanganDAO dao = new RuanganDAO();
 
             for (Ruangan ruangan : dao.getAll()) {
                 r.addRow(new Object[]{
+                    no++,
                     ruangan.id,
                     ruangan.kodeRuangan,
                     ruangan.namaRuangan,
@@ -59,10 +78,10 @@ public class PanelRuangan extends javax.swing.JPanel {
         }
 
         Ruangan r = new Ruangan();
-        r.id = tblRuangan.getValueAt(row, 0).toString();
-        r.kodeRuangan = tblRuangan.getValueAt(row, 1).toString();
-        r.namaRuangan = tblRuangan.getValueAt(row, 2).toString();
-        r.keterangan  = tblRuangan.getValueAt(row, 3).toString();
+        r.id = tblRuangan.getValueAt(row, 1).toString();
+        r.kodeRuangan = tblRuangan.getValueAt(row, 2).toString();
+        r.namaRuangan = tblRuangan.getValueAt(row, 3).toString();
+        r.keterangan  = tblRuangan.getValueAt(row, 4).toString();
 
         new PanelRuanganDialog(
             (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
@@ -81,7 +100,7 @@ public class PanelRuangan extends javax.swing.JPanel {
             }
 
             // Ambil ID dari kolom pertama (asumsikan kolom 0 = ID)
-             String id = tblRuangan.getValueAt(r, 0).toString();
+             String id = tblRuangan.getValueAt(r, 1).toString();
 
             // Konfirmasi sebelum hapus
             int confirm = JOptionPane.showConfirmDialog(

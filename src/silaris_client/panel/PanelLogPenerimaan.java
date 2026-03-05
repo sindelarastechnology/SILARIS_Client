@@ -1,0 +1,225 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package silaris_client.panel;
+
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import silaris_client.Main;
+import silaris_client.dao.LinenDAO;
+import silaris_client.dao.PenerimaanDAO;
+import silaris_client.model.Penerimaan;
+import silaris_client.model.Linen;
+
+/**
+ *
+ * @author HP
+ */
+public class PanelLogPenerimaan extends javax.swing.JPanel {
+    
+    private Main main;
+    
+    DefaultTableModel modelP, modelD;
+    PenerimaanDAO penerimaanDAO = new PenerimaanDAO();
+    LinenDAO linenDAO = new LinenDAO();
+    
+    String penerimaanSelected;
+    public PanelLogPenerimaan(Main main) {
+        this.main = main;
+        initComponents();
+        
+        modelP = new DefaultTableModel(new Object[]{"No","ID","Tanggal","Petugas", "Jumlah Linen", "Keterangan"},0);
+        modelD = new DefaultTableModel(new Object[]{"No","ID","EPC","Kategori", "Nama Linen"},0);
+        
+        tblPener.setModel(modelP);
+        tblDetail.setModel(modelD);
+        
+        tblPener.getColumnModel().getColumn(1).setMinWidth(0);
+        tblPener.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblPener.getColumnModel().getColumn(1).setWidth(0);
+        
+        tblDetail.getColumnModel().getColumn(1).setMinWidth(0);
+        tblDetail.getColumnModel().getColumn(1).setMaxWidth(0);
+        tblDetail.getColumnModel().getColumn(1).setWidth(0);
+        
+        tblPener.getSelectionModel().addListSelectionListener(ev -> {
+            
+            int x = tblPener.getSelectedRow();
+            if (x >= 0) {
+                penerimaanSelected = modelP.getValueAt(x,1).toString();
+                loadLinen();
+            }
+        });
+        
+        loadPenerimaan();
+        setupTableColumnWidth();
+    }
+    
+    private void setupTableColumnWidth() {
+        TableColumnModel columnModel = tblPener.getColumnModel();
+        TableColumn colNo = columnModel.getColumn(0);
+        colNo.setMinWidth(30);
+        colNo.setPreferredWidth(40);
+        colNo.setMaxWidth(50);
+        
+        TableColumnModel columnModel2 = tblDetail.getColumnModel();
+        TableColumn colNo2 = columnModel2.getColumn(0);
+        colNo2.setMinWidth(30);
+        colNo2.setPreferredWidth(40);
+        colNo2.setMaxWidth(50);
+    }
+    
+    public void loadPenerimaan() {
+        try {
+            modelP.setRowCount(0);
+            int no = 1;
+            for (Penerimaan k : penerimaanDAO.getAll()) {
+                modelP.addRow(new Object[]{no++,k.idPen,k.tanggalPen,k.petugasPen,k.totalLin,k.ketPen});
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+    
+    private void loadLinen() {
+        try {
+            modelD.setRowCount(0);
+            int no = 1;
+            for (Linen n : linenDAO.getByIdPenerimaan(penerimaanSelected)) {
+                modelD.addRow(new Object[]{no++,n.idLinen,n.epc,n.kategoriLin, n.namaLin});
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblPener = new javax.swing.JTable();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblDetail = new javax.swing.JTable();
+
+        jPanel1.setLayout(new java.awt.GridLayout(1, 2));
+
+        jPanel6.setBackground(new java.awt.Color(255, 255, 153));
+        jPanel6.setLayout(new java.awt.GridBagLayout());
+
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel3.setText("Penerimaan Linen");
+        jPanel6.add(jLabel3, new java.awt.GridBagConstraints());
+
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        tblPener.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(tblPener);
+
+        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(jPanel2);
+
+        jPanel7.setBackground(new java.awt.Color(153, 255, 153));
+        jPanel7.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel1.setText("Detail Linen");
+        jPanel7.add(jLabel1, new java.awt.GridBagConstraints());
+
+        jPanel5.setLayout(new java.awt.BorderLayout());
+
+        tblDetail.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(tblDetail);
+
+        jPanel5.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE))
+        );
+
+        jPanel1.add(jPanel4);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 803, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable tblDetail;
+    private javax.swing.JTable tblPener;
+    // End of variables declaration//GEN-END:variables
+}

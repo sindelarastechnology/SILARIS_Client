@@ -8,6 +8,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
 import org.json.JSONObject;
 import silaris_client.ReaderConfig.ReaderManager;
 import silaris_client.config.RFIDTestReaderService;
@@ -36,10 +38,12 @@ import silaris_client.menu.MenuLaundry;
 import silaris_client.panel.PanelLogin;
 import silaris_client.menu.MenuMasterData;
 import silaris_client.menu.MenuSetting;
+import silaris_client.panel.PanelLogLinen;
 import silaris_client.panel.PanelSinkronasiData;
 import silaris_client.panel.Panel_LinenKeluar;
 import silaris_client.panel.Panel_LinenMasuk;
 import silaris_client.session.SessionSQLite;
+import silaris_client.sweetAlert.SweetAlert_Logout;
 
 
 /**
@@ -58,7 +62,7 @@ public class Main extends javax.swing.JFrame {
     
     private Panel_LinenMasuk panelMasuk;
     private Panel_LinenKeluar panelKeluar;
-    
+    private PanelLogLinen panelLog;
     private PanelSinkronasiData panelSinkronasiData;
     
     private boolean adjustingPort = false;
@@ -69,6 +73,7 @@ public class Main extends javax.swing.JFrame {
         
         panelMasuk = new Panel_LinenMasuk(this);
         panelKeluar = new Panel_LinenKeluar(this);
+        panelLog = new PanelLogLinen(this);
         panelSinkronasiData = new PanelSinkronasiData(this);
         
         loadPorts();
@@ -77,17 +82,36 @@ public class Main extends javax.swing.JFrame {
         updateScanUI(ReaderType.MASUK, false);
         updateScanUI(ReaderType.KELUAR, false);
         
-        dashboard = new MenuDashboard();
-        masterdatamenu = new MenuMasterData();
-        laundrymenu = new MenuLaundry(panelMasuk, panelKeluar);
+        dashboard = new MenuDashboard(this);
+        masterdatamenu = new MenuMasterData(this);
+        laundrymenu = new MenuLaundry(this, panelKeluar, panelMasuk);
         settingmenu = new MenuSetting(panelSinkronasiData);
         
         tabbedPaneUtama.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tabbedPaneUtama.addTab("Dashboard", dashboard);
-        tabbedPaneUtama.addTab("Master Data ", masterdatamenu);
+        tabbedPaneUtama.addTab("Master Data", masterdatamenu);
         tabbedPaneUtama.addTab("Laundry ", laundrymenu);
         tabbedPaneUtama.addTab("Setting ", settingmenu);
         
+        tabbedPaneUtama.addChangeListener(e -> {
+
+            int selectedIndex = tabbedPaneUtama.getSelectedIndex();
+            String title = tabbedPaneUtama.getTitleAt(selectedIndex);
+
+            if (title.equals("Dashboard")) {
+                dashboard.loadCounts();
+            }
+            if (title.equals("Laundry ")) {
+                laundrymenu.loadData();
+            }
+            if (title.equals("Master Data")) {
+                masterdatamenu.loadLinen();
+                masterdatamenu.loadRuangan();
+            }
+            if (title.equals("Setting ")) {
+                settingmenu.loadLog();
+            }
+        });
         
         
         // ambil nama RS dari session
@@ -153,16 +177,15 @@ public class Main extends javax.swing.JFrame {
         btnLogout.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int jawab = JOptionPane.showConfirmDialog(null,
-                        "Yakin ingin logout?",
-                        "Konfirmasi",
-                        JOptionPane.YES_NO_OPTION);
 
-                if(jawab == JOptionPane.YES_OPTION){
-                    SessionSQLite.clear(); // hapus session
-                    new PanelLogin().setVisible(true); // buka login
-                    dispose();
-                }
+                SweetAlert_Logout.show(
+                        (Frame) SwingUtilities.getWindowAncestor(btnLogout),
+                        () -> {
+                            SessionSQLite.clear();
+                            new PanelLogin().setVisible(true);
+                            dispose();
+                        }
+                );
             }
         });
 
@@ -184,6 +207,8 @@ public class Main extends javax.swing.JFrame {
 
             }
         });
+        lbUser.setVisible(false);
+        popup.setVisible(false);
         
         addWindowListener(new WindowAdapter() {
             @Override
@@ -196,6 +221,7 @@ public class Main extends javax.swing.JFrame {
         
         cbPortKeluar.addActionListener(e -> validatePortSelection());
         cbPortMasuk.addActionListener(e -> validatePortSelection());
+        
         
     }
 
@@ -231,6 +257,10 @@ public class Main extends javax.swing.JFrame {
 
         revalidate();
         repaint();
+    }
+
+    public Object getPanelLog() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
     public enum ReaderType {
@@ -310,8 +340,8 @@ public class Main extends javax.swing.JFrame {
         String port = (String) cbPortKeluar.getSelectedItem();
         if (port == null) return;
         updateScanUI(ReaderType.MASUK, true);
-        manager.startMasuk(port, epc -> {
-            panelMasuk.addEPC(epc);
+        manager.startMasukRealtime(port, (epc, rssi) -> {
+            panelMasuk.onTagDetected(epc, rssi);
         });
     }
 
@@ -338,8 +368,8 @@ public class Main extends javax.swing.JFrame {
         
         
 
-        manager.startKeluar(port, epc -> {
-            panelKeluar.addEPC(epc);
+        manager.startKeluarRealtime(port, (epc, rssi) -> {
+            panelKeluar.onTagDetected(epc, rssi);
         });
     }
 
@@ -372,7 +402,11 @@ public class Main extends javax.swing.JFrame {
         updateScanUI(ReaderType.MASUK, false);
     }
     
-    
+    public void refreshLogLinen() {
+        if (panelLog != null) {
+            panelLog.loadData();
+        }
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -394,6 +428,7 @@ public class Main extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         lblStatus12 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
         lbUser = new javax.swing.JLabel();
         tabbedPaneUtama = new silaris_client.tabbed.TabbedPaneCustom();
 
@@ -447,8 +482,19 @@ public class Main extends javax.swing.JFrame {
         jPanel3.setOpaque(false);
         jPanel3.setLayout(new java.awt.BorderLayout());
 
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/silaris_client_assets/Sync_1.png"))); // NOI18N
+        jLabel8.setToolTipText("Load Ports");
+        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel8MouseClicked(evt);
+            }
+        });
+        jPanel3.add(jLabel8, java.awt.BorderLayout.CENTER);
+
+        lbUser.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbUser.setText("jLabel2");
-        jPanel3.add(lbUser, java.awt.BorderLayout.CENTER);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -456,20 +502,25 @@ public class Main extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 368, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 385, Short.MAX_VALUE)
+                .addComponent(lbUser, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 287, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 3, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lbUser, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -505,6 +556,10 @@ public class Main extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+        loadPorts();
+    }//GEN-LAST:event_jLabel8MouseClicked
 
     /**
      * @param args the command line arguments
@@ -555,6 +610,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
